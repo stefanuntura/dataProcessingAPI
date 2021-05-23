@@ -4,15 +4,46 @@ import re
 from MySQLdb import _mysql
 from MySQLdb.constants import FIELD_TYPE
 from flask import request, jsonify, json
+from flask import make_response
 
 app = flask.Flask(__name__);
 app.config["DEBUG"] = True
 
 homePageText = "<h1><center>FokusApp Rest Api</center></h1> <h3>Options:</h3> <ul> <li>/api/loginInfo/all - <i>Fetches all login data from database</i></li> </ul>"
 
-loginInfoQuery = """SELECT * FROM accountinfo"""
+#=============================================================================#Global, frequently used functions========================================================================
+def connect_db():
 
-def preparingResultedQueryString(queryResult):
+    global db
+
+    db = _mysql.connect(host = 'localhost', db = 'fokusapp', user = 'root', passwd = '')
+    print("Successfully Connected To Database")
+
+
+def close_db():
+
+    db.close()
+    print("Closed database connection")
+
+
+def fetchDatabaseInfo(infoQuery):
+
+    global result
+    global convertedResult
+
+    db.query(infoQuery)
+    print("Successfully executed login info query")
+
+    result = db.store_result()
+    print("Successfully stored login data")
+
+    convertedResult= str(result.fetch_row())
+    print("Successfully fetched login data")
+
+    return convertedResult
+
+
+def prepareResultedQueryString(queryResult):
 
     global modifiedQueryResult
 
@@ -25,46 +56,65 @@ def preparingResultedQueryString(queryResult):
 
     return modifiedQueryResult
 
-#Home page of the API
-
+#===================================================================================#Home page of the API===============================================================================
 @app.route('/', methods=['GET'])
+
 def home():
     return homePageText
 
-#Requesting LoginInfo from the API
+#=============================================================================#Requesting QuoteInfo from the API========================================================================
+@app.route('/quoteInfo', methods=['GET'])
 
-@app.route('/api/loginInfo/all', methods=['GET'])
-def loginInfo_all():
-    db = _mysql.connect(host ='localhost', db = 'fokusapp', user = 'root', passwd = '')
-    print("Successfully Connected To Database")
+def quoteInfo():
+    connect_db()
 
-    db.query(loginInfoQuery)
-    print("Successfully executed login info query")
+    quoteInfoQuery = """SELECT * FROM quoteoftheday"""
 
-    loginCredentials = db.store_result()
-    print("Successfully stored login data")
+    fetchDatabaseInfo(quoteInfoQuery)
+    prepareResultedQueryString(convertedResult)
 
-    tempResult = str(loginCredentials.fetch_row())
-    print("Successfully fetched login data")
+    quoteKey = modifiedQueryResult[0]
+    quoteText = modifiedQueryResult[1]
 
-    preparingResultedQueryString(tempResult)
-
-    userID = modifiedQueryResult[0]
-    userName = modifiedQueryResult[1]
-    userPassword = modifiedQueryResult[2]
-
-    loginData = {
-        "AccountID": userID,
-        "AccountName": userName,
-        "AccountPassword": userPassword
+    quoteData = {
+        "QuoteKey": quoteKey,
+        "QuoteText": quoteText
     }
 
-    loginInfoJsonObject = jsonify(loginData)
+    quoteInfoJsonObject = jsonify(quoteData)
     print("Successfully jsonifed the substringed result")
 
-    print("Closing database connection")
-    db.close()
+    close_db()
 
-    return loginInfoJsonObject
+    return quoteInfoJsonObject
+#============================================================================#Requesting QuoteInfo from the API=========================================================================
+@app.route('/appInfo', methods=['GET'])
+
+def appInfo():
+    connect_db()
+
+    appInfoQuery = """SELECT * FROM app"""
+
+    fetchDatabaseInfo(appInfoQuery)
+    prepareResultedQueryString(convertedResult)
+
+    email = modifiedQueryResult[0]
+    quoteKey = modifiedQueryResult[1]
+
+    appData = {
+        "Email": email,
+        "QuoteKey": quoteKey
+    }
+
+    appInfoJsonObject = jsonify(appData)
+    print("Successfully jsonified the substringed result")
+
+    close_db()
+
+    return appInfoJsonObject
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
 
 app.run()

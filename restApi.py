@@ -136,8 +136,6 @@ def notesInfo():
     if email is None or noteID is None:
         notesInfoQuery = """SELECT * FROM notes"""
         print("email or noteID IS NONE")
-        print(email)
-        print(noteID)
     else:
         notesInfoQuery = """SELECT * FROM notes WHERE email = '{}' AND note_id='{}' """.format(email, noteID)
         print("email and noteID HAVE A VALUE")
@@ -196,27 +194,32 @@ def scheduleInfo():
 
     close_db()
 
-    return schduleInfoJsonObject
+    return scheduleInfoJsonObject
 
 #============================================================================#Upload .txt file to SQL=========================================================================
 
-@app.route('/uploadNotes', methods=['POST', 'GET'])
+@app.route('/uploadNotes', methods=['GET'])
 def upload():
-    if request.method == "POST":
-        file = request.files['inputFile']
+    noteID = request.args.get("noteID")
+    email = request.args.get("email")
+    noteContent = request.args.get("content")
 
-        connect_db()
+    connect_db()
 
-        insertNotesFileQuery = """INSERT INTO notes(title, content) VALUES('{}', '{}')""".format(file.filename, file.read())
-
-        db.query(insertNotesFileQuery)
-        print("Successfully inserted the notes")
-
-        close_db()
-
-        return flask.redirect(flask.url_for("home"))
+    if email is None or noteID is None:
+        flask.redirect(flask.url_for("home"))
+        print("email or noteID IS NONE")
     else:
-        return render_template("fileupload.html")
+        insertNotesContentQuery = """UPDATE notes SET content = '{}' WHERE email = '{}' AND note_id='{}' """.format(noteContent, email, noteID)
+        print("email and noteID HAVE A VALUE")
+        print("notes content have been inserted")
+
+    db.query(insertNotesContentQuery)
+    print("Successfully inserted the notes")
+
+    close_db()
+
+    return flask.redirect(flask.url_for("home"))
 
 #============================================================================#Update eventStatus column in schedule tableL=========================================================================
 
@@ -231,6 +234,27 @@ def scheduleUpdate():
 
     db.query(updateEventStatusQuery)
     print("Successfully updated the eventStatus field")
+
+    close_db()
+
+    return flask.redirect(flask.url_for("home"))
+
+#============================================================================#Update eventStatus column in schedule tableL=========================================================================
+
+@app.route('/insertEmail', methods=['GET'])
+def insertEmail():
+    email = request.args.get("email")
+
+    connect_db()
+
+    if email is None:
+        flask.redirect(flask.url_for("home"))
+        print("Email was not specified")
+    else:
+        insertEmailQuery = """INSERT INTO app(email) VALUES('{}')""".format(email)
+
+    db.query(insertEmailQuery)
+    print("Successfully inserted the email")
 
     close_db()
 

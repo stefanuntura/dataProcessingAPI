@@ -21,6 +21,7 @@ class Account(db.Model):
     email = db.Column(db.String(120), unique=True)
     notes = db.relationship('Notes', backref='account')
     quotes = db.relationship('Quotes', backref='account')
+    events = db.relationship('Events', backref='account')
 
 class Notes(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -35,7 +36,7 @@ class Quotes(db.Model):
 
 class Events(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    timedate = db.Column(db.String(20), unique=False)
+    timedate = db.Column(db.String(50), unique=False)
     title = db.Column(db.String(50), unique=False)
     status = db.Column(db.Boolean, unique=False)
     account_id=db.Column(db.Integer, db.ForeignKey('account.id'))
@@ -140,10 +141,10 @@ def getEvents():
 def postEvents():
     eventData = request.get_json()
     event = Events(id=eventData['id'], timedate=eventData['timedate'], title=eventData['title'], status=eventData['status'], account_id=eventData['account_id'])
-    db.session.add(note)
+    db.session.add(event)
     db.session.commit()
     db.session.close()
-    return jsonify(noteData)
+    return jsonify(eventData)
 
 
 

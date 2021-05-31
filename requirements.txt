@@ -57,7 +57,7 @@ et-xmlfile==1.0.1
 fastcache==1.1.0
 filelock==3.0.12
 flake8==3.8.3
-Flask==1.1.2
+Flask==1.1.1
 Flask-RESTful==0.3.8
 Flask-SQLAlchemy==2.4.3
 fsspec==0.7.4
@@ -147,6 +147,7 @@ ply==3.11
 prometheus-client==0.8.0
 prompt-toolkit==3.0.5
 psutil==5.7.0
+psycopg2 @ file:///D:/FokusAppProject/psycopg2-2.8.6-cp38-cp38-win_amd64.whl
 py @ file:///tmp/build/80754af9/py_1593446248552/work
 pycodestyle==2.6.0
 pycosat==0.6.3

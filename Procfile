@@ -1,1 +1,1 @@
-web: gunicorn app:restApi
+web: gunicorn --bind 0.0.0.0:$PORT fokusAppRestApi:app

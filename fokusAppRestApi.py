@@ -6,13 +6,40 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 app.config["DEBUG"] = True
 
-uri = "postgresql+psycopg2://jcrmzxcrgqnria:9e5ddac9f8d1d2b5cd2fc9621d3748ae4f18d4ae9a14c695a8282ef93c446709@ec2-34-255-134-200.eu-west-1.compute.amazonaws.com:5432/ddj8mm4n4oaccb"
+uri = "postgresql+psycopg2://postgres:Admin123@localhost/finaldatabase"
 if uri.startswith("postgres+psycopg2://"):
     uri = uri.replace("postgres+psycopg2://", "postgresql+psycopg2://", 1)
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['DATABASE_URL'] = uri
+app.config['SQLALCHEMY_DATABASE_URI'] = uri
 db = SQLAlchemy(app)
+
+#==========================================================================Creating Tables===========================================================================
+
+class Account(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True)
+    notes = db.relationship('Notes', backref='account')
+    quotes = db.relationship('Quotes', backref='account')
+    events = db.relationship('Events', backref='account')
+
+class Notes(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title=db.Column(db.String(120), unique=True)
+    content=db.Column(db.String(500), unique=False)
+    account_id=db.Column(db.Integer, db.ForeignKey('account.id'))
+
+class Quotes(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.String(255), unique=False)
+    account_id=db.Column(db.Integer, db.ForeignKey('account.id'))
+
+class Events(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    timedate = db.Column(db.String(50), unique=False)
+    title = db.Column(db.String(50), unique=False)
+    status = db.Column(db.Boolean, unique=False)
+    account_id=db.Column(db.Integer, db.ForeignKey('account.id'))
 
 #============================================================================Api Home Page============================================================================
 

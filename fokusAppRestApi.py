@@ -43,15 +43,14 @@ class Events(db.Model):
     status = db.Column(db.Boolean, unique=False)
     account_id=db.Column(db.Integer, db.ForeignKey('account.id'))
 
-@click.command(name='create_tables')
-@with_appcontext
-def create_tables():
-    db.create_all()
-
 #============================================================================Api Home Page============================================================================
 
 @app.route('/')
 def index():
+    counter = 0;
+    if(counter<1):
+        db.create_all()
+        counter+=1;
     return render_template("index.html")
 
 #==========================================================================Account Info Methods=======================================================================

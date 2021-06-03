@@ -1,7 +1,9 @@
 import os
 import re
+import click
 from flask import Flask, render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
+from flask.cli import with_appcontext
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
@@ -40,6 +42,11 @@ class Events(db.Model):
     title = db.Column(db.String(50), unique=False)
     status = db.Column(db.Boolean, unique=False)
     account_id=db.Column(db.Integer, db.ForeignKey('account.id'))
+
+@click.command(name='create_tables')
+@with_appcontext
+def create_tables():
+    db.create_all()
 
 #============================================================================Api Home Page============================================================================
 

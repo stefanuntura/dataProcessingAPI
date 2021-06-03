@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, request, redirect, url_for
 from flask_qa.extensions import db
 from flask_qa.models import Question, User
 
-app = Blueprint('main', __name__)
+app = Blueprint('app', __name__)
 
 import os
 import re

@@ -4,114 +4,136 @@ from flask_login import current_user, login_required
 from flask_qa.extensions import db
 from flask_qa.models import Question, User
 
-main = Blueprint('main', __name__)
+app = Blueprint('app', __name__)
 
-@main.route('/')
+import os
+import re
+import click
+from flask import Flask, render_template, jsonify, request
+from flask_sqlalchemy import SQLAlchemy
+from flask.cli import with_appcontext
+
+app = Flask(__name__)
+app.config["DEBUG"] = True
+
+uri = "postgresql+psycopg2://jcrmzxcrgqnria:9e5ddac9f8d1d2b5cd2fc9621d3748ae4f18d4ae9a14c695a8282ef93c446709@ec2-34-255-134-200.eu-west-1.compute.amazonaws.com:5432/ddj8mm4n4oaccb"
+if uri.startswith("postgres+psycopg2://"):
+    uri = uri.replace("postgres+psycopg2://", "postgresql+psycopg2://", 1)
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['DATABASE_URL'] = uri
+db = SQLAlchemy(app)
+
+#==========================================================================Creating Tables===========================================================================
+
+
+
+#============================================================================Api Home Page============================================================================
+
+@app.route('/')
 def index():
-    questions = Question.query.filter(Question.answer != None).all()
+    return render_template("index.html")
 
-    context = {
-        'questions' : questions
-    }
+#==========================================================================Account Info Methods=======================================================================
 
-    return render_template('home.html', **context)
+@app.route('/accounts', methods=['GET'])
+def getAccounts():
+    allAccounts = Account.query.all()
+    output = []
+    for account in allAccounts:
+        currAccount = {}
+        currAccount['id'] = account.id
+        currAccount['email'] = account.email
+        output.append(currAccount)
 
-@main.route('/ask', methods=['GET', 'POST'])
-@login_required
-def ask():
-    if request.method == 'POST':
-        question = request.form['question']
-        expert = request.form['expert']
+    return jsonify(output)
 
-        question = Question(
-            question=question,
-            expert_id=expert,
-            asked_by_id=current_user.id
-        )
-
-        db.session.add(question)
-        db.session.commit()
-
-        return redirect(url_for('main.index'))
-
-    experts = User.query.filter_by(expert=True).all()
-
-    context = {
-        'experts' : experts
-    }
-
-    return render_template('ask.html', **context)
-
-@main.route('/answer/<int:question_id>', methods=['GET', 'POST'])
-@login_required
-def answer(question_id):
-    if not current_user.expert:
-        return redirect(url_for('main.index'))
-
-    question = Question.query.get_or_404(question_id)
-
-    if request.method == 'POST':
-        question.answer = request.form['answer']
-        db.session.commit()
-
-        return redirect(url_for('main.unanswered'))
-
-    context = {
-        'question' : question
-    }
-
-    return render_template('answer.html', **context)
-
-@main.route('/question/<int:question_id>')
-def question(question_id):
-    question = Question.query.get_or_404(question_id)
-
-    context = {
-        'question' : question
-    }
-
-    return render_template('question.html', **context)
-
-@main.route('/unanswered')
-@login_required
-def unanswered():
-    if not current_user.expert:
-        return redirect(url_for('main.index'))
-
-    unanswered_questions = Question.query\
-        .filter_by(expert_id=current_user.id)\
-        .filter(Question.answer == None)\
-        .all()
-
-    context = {
-        'unanswered_questions' : unanswered_questions
-    }
-
-    return render_template('unanswered.html', **context)
-
-@main.route('/users')
-@login_required
-def users():
-    if not current_user.admin:
-        return redirect(url_for('main.index'))
-
-    users = User.query.filter_by(admin=False).all()
-
-    context = {
-        'users' : users
-    }
-
-    return render_template('users.html', **context)
-
-@main.route('/promote/<int:user_id>')
-@login_required
-def promote(user_id):
-    if not current_user.admin:
-        return redirect(url_for('main.index'))
-
-    user = User.query.get_or_404(user_id)
-
-    user.expert = True
+@app.route('/accounts', methods=['POST'])
+def postAccounts():
+    accountData = request.get_json()
+    account = Account(email=accountData['email'])
+    db.session.add(account)
     db.session.commit()
+    db.session.close()
 
-    return redirect(url_for('main.users'))
+    return jsonify(accountData)
+
+#==========================================================================Quotes Info Methods=======================================================================
+
+@app.route('/quotes', methods=['GET'])
+def getQuotes():
+    allQuotes = Quotes.query.all()
+    output = []
+    for quote in allQuotes:
+        currQuote = {}
+        currQuote['id'] = quote.id
+        currQuote['content'] = quote.content
+        currQuote['account_id'] = quote.account_id
+        output.append(currQuote)
+
+    return jsonify(output)
+
+@app.route('/quotes', methods=['POST'])
+def postQuotes():
+    quoteData = request.get_json()
+    quote = Quotes(id=quoteData['id'], content=quoteData['content'], account_id=quoteData['account_id'])
+    db.session.add(quote)
+    db.session.commit()
+    db.session.close()
+    return jsonify(quoteData)
+
+#==========================================================================Notes Info Methods=======================================================================
+
+@app.route('/notes', methods=['GET'])
+def getNotes():
+    allNotes = Notes.query.all()
+    output = []
+    for note in allNotes:
+        currNote = {}
+        currNote['id'] = note.id
+        currNote['title'] = note.title
+        currNote['content'] = note.content
+        currNote['account_id'] = note.account_id
+        output.append(currNote)
+
+    return jsonify(output)
+
+@app.route('/notes', methods=['POST'])
+def postNotes():
+    noteData = request.get_json()
+    note = Notes(id=noteData['id'], title=noteData['title'], content=noteData['content'], account_id=noteData['account_id'])
+    db.session.add(note)
+    db.session.commit()
+    db.session.close()
+    return jsonify(noteData)
+
+#=========================================================================Schedule Info Methods=====================================================================
+
+@app.route('/events', methods=['GET'])
+def getEvents():
+    allEvents = Events.query.all()
+    output = []
+    for event in allEvents:
+        currNote = {}
+        currNote['id'] = event.id
+        currNote['timedate'] = event.timedate
+        currNote['title'] = event.title
+        currNote['status'] = event.status
+        currNote['account_id'] = event.account_id
+        output.append(currNote)
+
+    return jsonify(output)
+
+@app.route('/events', methods=['POST'])
+def postEvents():
+    eventData = request.get_json()
+    event = Events(id=eventData['id'], timedate=eventData['timedate'], title=eventData['title'], status=eventData['status'], account_id=eventData['account_id'])
+    db.session.add(event)
+    db.session.commit()
+    db.session.close()
+    return jsonify(eventData)
+
+
+
+if __name__ == "__main__":
+    app.run()

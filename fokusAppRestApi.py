@@ -6,12 +6,12 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 app.config["DEBUG"] = True
 
-uri = "postgresql+psycopg2://postgres:Admin123@localhost/testdatabase"
+uri = "postgresql+psycopg2://jcrmzxcrgqnria:9e5ddac9f8d1d2b5cd2fc9621d3748ae4f18d4ae9a14c695a8282ef93c446709@ec2-34-255-134-200.eu-west-1.compute.amazonaws.com:5432/ddj8mm4n4oaccb"
 if uri.startswith("postgres+psycopg2://"):
     uri = uri.replace("postgres+psycopg2://", "postgresql+psycopg2://", 1)
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = uri
+app.config['DATABASE_URL'] = uri
 db = SQLAlchemy(app)
 
 #==========================================================================Creating Tables===========================================================================

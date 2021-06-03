@@ -1,8 +1,7 @@
-import click
-from flask.cli import with_appcontext
-from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash
 
-db = SQLAlchemy()
+from .extensions import db
 
 class Account(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -28,9 +27,3 @@ class Events(db.Model):
     title = db.Column(db.String(50), unique=False)
     status = db.Column(db.Boolean, unique=False)
     account_id=db.Column(db.Integer, db.ForeignKey('account.id'))
-
-
-@click.command(name='create_tables')
-@with_appcontext
-def create_tables():
-    db.create_all()

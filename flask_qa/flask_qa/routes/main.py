@@ -1,10 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, url_for
-from flask_login import current_user, login_required
 
 from flask_qa.extensions import db
 from flask_qa.models import Question, User
 
-app = Blueprint('app', __name__)
+app = Blueprint('main', __name__)
 
 import os
 import re
@@ -23,10 +22,6 @@ if uri.startswith("postgres+psycopg2://"):
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['DATABASE_URL'] = uri
 db = SQLAlchemy(app)
-
-#==========================================================================Creating Tables===========================================================================
-
-
 
 #============================================================================Api Home Page============================================================================
 

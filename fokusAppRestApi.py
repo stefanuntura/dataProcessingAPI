@@ -53,9 +53,18 @@ def index():
 
 @app.route('/accounts', methods=['GET'])
 def getAccounts():
-    allAccounts = Account.query.all()
+    getAccountID = request.args.get("id")
     output = []
-    for account in allAccounts:
+
+    if getAccountID is None:
+        allAccounts = Account.query.all()
+        for account in allAccounts:
+            currAccount = {}
+            currAccount['id'] = account.id
+            currAccount['email'] = account.email
+            output.append(currAccount)
+    else:
+        account = Account.query.get(getAccountID)
         currAccount = {}
         currAccount['id'] = account.id
         currAccount['email'] = account.email
@@ -77,9 +86,19 @@ def postAccounts():
 
 @app.route('/quotes', methods=['GET'])
 def getQuotes():
-    allQuotes = Quotes.query.all()
+    getQuoteID = request.args.get("id")
     output = []
-    for quote in allQuotes:
+
+    if getQuoteID is None:
+        allQuotes = Quotes.query.all()
+        for quote in allQuotes:
+            currQuote = {}
+            currQuote['id'] = quote.id
+            currQuote['content'] = quote.content
+            currQuote['account_id'] = quote.account_id
+            output.append(currQuote)
+    else:
+        quote = Quotes.query.get(getQuoteID)
         currQuote = {}
         currQuote['id'] = quote.id
         currQuote['content'] = quote.content
@@ -101,9 +120,20 @@ def postQuotes():
 
 @app.route('/notes', methods=['GET'])
 def getNotes():
-    allNotes = Notes.query.all()
+    getNotesID = request.args.get("id")
     output = []
-    for note in allNotes:
+
+    if getNotesID is None:
+        allNotes = Notes.query.all()
+        for note in allNotes:
+            currNote = {}
+            currNote['id'] = note.id
+            currNote['title'] = note.title
+            currNote['content'] = note.content
+            currNote['account_id'] = note.account_id
+            output.append(currNote)
+    else:
+        note = Notes.query.get(getNotesID)
         currNote = {}
         currNote['id'] = note.id
         currNote['title'] = note.title
@@ -126,16 +156,28 @@ def postNotes():
 
 @app.route('/events', methods=['GET'])
 def getEvents():
-    allEvents = Events.query.all()
+    getEventsID = request.args.get("id")
     output = []
-    for event in allEvents:
-        currNote = {}
-        currNote['id'] = event.id
-        currNote['timedate'] = event.timedate
-        currNote['title'] = event.title
-        currNote['status'] = event.status
-        currNote['account_id'] = event.account_id
-        output.append(currNote)
+
+    if getEventsID is None:
+        allEvents = Events.query.all()
+        for event in allEvents:
+            currEvent = {}
+            currEvent['id'] = event.id
+            currEvent['timedate'] = event.timedate
+            currEvent['title'] = event.title
+            currEvent['status'] = event.status
+            currEvent['account_id'] = event.account_id
+            output.append(currEvent)
+    else:
+        event = Events.query.get(getEventsID)
+        currEvent = {}
+        currEvent['id'] = event.id
+        currEvent['timedate'] = event.timedate
+        currEvent['title'] = event.title
+        currEvent['status'] = event.status
+        currEvent['account_id'] = event.account_id
+        output.append(currEvent)
 
     return jsonify(output)
 

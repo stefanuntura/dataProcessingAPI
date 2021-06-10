@@ -8,7 +8,7 @@ from flask.cli import with_appcontext
 app = Flask(__name__)
 app.config["DEBUG"] = True
 
-#uri = "postgres://postgres:Admin123@localhost:5432/trialdatabase"
+#uri = "postgres://postgres:Admin123@localhost:5432/fokusdatabase"
 uri = "postgresql+psycopg2://jcrmzxcrgqnria:9e5ddac9f8d1d2b5cd2fc9621d3748ae4f18d4ae9a14c695a8282ef93c446709@ec2-34-255-134-200.eu-west-1.compute.amazonaws.com:5432/ddj8mm4n4oaccb"
 if uri.startswith("postgres+psycopg2://"):
     uri = uri.replace("postgres+psycopg2://", "postgresql+psycopg2://", 1)
@@ -30,6 +30,7 @@ class Account(db.Model):
 
 class Notes(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    subject=db.Column(db.String(255), unique=False)
     title=db.Column(db.String(120), unique=True)
     content=db.Column(db.String(500), unique=False)
     account_id=db.Column(db.Integer, db.ForeignKey('account.id'))
@@ -120,7 +121,7 @@ def getQuotes():
 @app.route('/quotes', methods=['POST'])
 def postQuotes():
     quoteData = request.get_json()
-    quote = Quotes(id=quoteData['id'], content=quoteData['content'], account_id=quoteData['account_id'])
+    quote = Quotes(content=quoteData['content'], account_id=quoteData['account_id'])
     db.session.add(quote)
     db.session.commit()
     db.session.close()
@@ -138,6 +139,7 @@ def getNotes():
         for note in allNotes:
             currNote = {}
             currNote['id'] = note.id
+            currNote['subject'] = note.subject
             currNote['title'] = note.title
             currNote['content'] = note.content
             currNote['account_id'] = note.account_id
@@ -146,6 +148,7 @@ def getNotes():
         note = Notes.query.get(getNotesID)
         currNote = {}
         currNote['id'] = note.id
+        currNote['subject'] = note.subject
         currNote['title'] = note.title
         currNote['content'] = note.content
         currNote['account_id'] = note.account_id
@@ -156,10 +159,19 @@ def getNotes():
 @app.route('/notes', methods=['POST'])
 def postNotes():
     noteData = request.get_json()
-    note = Notes(id=noteData['id'], title=noteData['title'], content=noteData['content'], account_id=noteData['account_id'])
+    note = Notes(subject=noteData['subject'], title=noteData['title'], content=noteData['content'], account_id=noteData['account_id'])
     db.session.add(note)
     db.session.commit()
     db.session.close()
+    return jsonify(noteData)
+
+@app.route('/notesUpdate', methods=['POST'])
+def updateQuotes():
+    noteData = request.get_json()
+    updatedNote = Notes.query.filter_by(id=noteData['id']).update(dict(content=noteData['content']))
+    db.session.commit()
+    db.session.close()
+
     return jsonify(noteData)
 
 #=========================================================================Schedule Info Methods=====================================================================
@@ -194,7 +206,7 @@ def getEvents():
 @app.route('/events', methods=['POST'])
 def postEvents():
     eventData = request.get_json()
-    event = Events(id=eventData['id'], timedate=eventData['timedate'], title=eventData['title'], status=eventData['status'], account_id=eventData['account_id'])
+    event = Events(timedate=eventData['timedate'], title=eventData['title'], status=eventData['status'], account_id=eventData['account_id'])
     db.session.add(event)
     db.session.commit()
     db.session.close()
@@ -232,7 +244,7 @@ def getSessions():
 @app.route('/sessions', methods=['POST'])
 def postSessions():
     sessionData = request.get_json()
-    session = Events(id=sessionData['id'], date=sessionData['date'], time=sessionData['time'], duration=sessionData['duration'], account_id=sessionData['account_id'])
+    session = Events(date=sessionData['date'], time=sessionData['time'], duration=sessionData['duration'], account_id=sessionData['account_id'])
     db.session.add(session)
     db.session.commit()
     db.session.close()

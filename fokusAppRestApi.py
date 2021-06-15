@@ -186,18 +186,18 @@ def getEvents():
         for event in allEvents:
             currEvent = {}
             currEvent['id'] = event.id
-            currEvent['timedate'] = event.timedate
+            currEvent['time'] = event.time
+            currEvent['date'] = event.date
             currEvent['title'] = event.title
-            currEvent['status'] = event.status
             currEvent['account_id'] = event.account_id
             output.append(currEvent)
     else:
         event = Events.query.get(getEventsID)
         currEvent = {}
         currEvent['id'] = event.id
-        currEvent['timedate'] = event.timedate
+        currEvent['time'] = event.time
+        currEvent['date'] = event.date
         currEvent['title'] = event.title
-        currEvent['status'] = event.status
         currEvent['account_id'] = event.account_id
         output.append(currEvent)
 

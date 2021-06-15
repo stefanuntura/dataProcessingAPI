@@ -244,7 +244,7 @@ def getSessions():
 @app.route('/sessions', methods=['POST'])
 def postSessions():
     sessionData = request.get_json()
-    session = Events(date=sessionData['date'], time=sessionData['time'], duration=sessionData['duration'], account_id=sessionData['account_id'])
+    session = Sessions(date=sessionData['date'], time=sessionData['time'], duration=sessionData['duration'], account_id=sessionData['account_id'])
     db.session.add(session)
     db.session.commit()
     db.session.close()

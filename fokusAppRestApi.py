@@ -206,7 +206,7 @@ def getEvents():
 @app.route('/events', methods=['POST'])
 def postEvents():
     eventData = request.get_json()
-    event = Events(timedate=eventData['timedate'], title=eventData['title'], status=eventData['status'], account_id=eventData['account_id'])
+    event = Events(date=eventData['date'], time=eventData['time'], title=eventData['title'], account_id=eventData['account_id'])
     db.session.add(event)
     db.session.commit()
     db.session.close()

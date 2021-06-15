@@ -64,10 +64,10 @@ def index():
 
 @app.route('/accounts', methods=['GET'])
 def getAccounts():
-    getAccountID = request.args.get("id")
+    getAccountEmail = request.args.get("email")
     output = []
 
-    if getAccountID is None:
+    if getAccountEmail is None:
         allAccounts = Account.query.all()
         for account in allAccounts:
             currAccount = {}
@@ -75,7 +75,7 @@ def getAccounts():
             currAccount['email'] = account.email
             output.append(currAccount)
     else:
-        account = Account.query.get(getAccountID)
+        account = Account.query.filter_by(email=getAccountEmail).first()
         currAccount = {}
         currAccount['id'] = account.id
         currAccount['email'] = account.email

@@ -166,13 +166,24 @@ def postNotes():
     return jsonify(noteData)
 
 @app.route('/notesUpdate', methods=['POST'])
-def updateQuotes():
+def updateNotes():
     noteData = request.get_json()
     updatedNote = Notes.query.filter_by(id=noteData['id']).update(dict(content=noteData['content']))
     db.session.commit()
     db.session.close()
 
     return jsonify(noteData)
+
+@app.route('/notesDelete', methods=['GET'])
+def deleteNotes():
+    getNotesDeleteID = request.args.get("id")
+    noteToDelete = Notes.query.get(getNotesDeleteID)
+    db.session.delete(noteToDelete)
+    db.session.commit()
+    db.session.close()
+
+    return "deleted note"
+
 
 #=========================================================================Schedule Info Methods=====================================================================
 
@@ -211,6 +222,16 @@ def postEvents():
     db.session.commit()
     db.session.close()
     return jsonify(eventData)
+
+@app.route('/eventsDelete', methods=['GET'])
+def deleteEvents():
+    getEventsDeleteID = request.args.get("id")
+    eventToDelete = Events.query.get(getEventsDeleteID)
+    db.session.delete(eventToDelete)
+    db.session.commit()
+    db.session.close()
+
+    return "deleted event"
 
 #=========================================================================Sessions Info Methods=====================================================================
 

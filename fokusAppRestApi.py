@@ -97,24 +97,19 @@ def postAccounts():
 
 @app.route('/quotes', methods=['GET'])
 def getQuotes():
-    getQuoteID = request.args.get("id")
+    getUserID = request.args.get("id")
     output = []
 
-    if getQuoteID is None:
-        allQuotes = Quotes.query.all()
-        for quote in allQuotes:
+    if getUserID is None:
+        return "no id specified"
+    else:
+        quotes = Quotes.query.filter_by(account_id=getUserID).all()
+        for quote in quotes:
             currQuote = {}
             currQuote['id'] = quote.id
             currQuote['content'] = quote.content
             currQuote['account_id'] = quote.account_id
             output.append(currQuote)
-    else:
-        quote = Quotes.query.get(getQuoteID)
-        currQuote = {}
-        currQuote['id'] = quote.id
-        currQuote['content'] = quote.content
-        currQuote['account_id'] = quote.account_id
-        output.append(currQuote)
 
     return jsonify(output)
 
@@ -131,12 +126,14 @@ def postQuotes():
 
 @app.route('/notes', methods=['GET'])
 def getNotes():
-    getNotesID = request.args.get("id")
+    getUserID = request.args.get("id")
     output = []
 
-    if getNotesID is None:
-        allNotes = Notes.query.all()
-        for note in allNotes:
+    if getUserID is None:
+        return "no id specified"
+    else:
+        notes = Notes.query.filter_by(account_id=getUserID).all()
+        for note in notes:
             currNote = {}
             currNote['id'] = note.id
             currNote['subject'] = note.subject
@@ -144,15 +141,6 @@ def getNotes():
             currNote['content'] = note.content
             currNote['account_id'] = note.account_id
             output.append(currNote)
-    else:
-        note = Notes.query.get(getNotesID)
-        currNote = {}
-        currNote['id'] = note.id
-        currNote['subject'] = note.subject
-        currNote['title'] = note.title
-        currNote['content'] = note.content
-        currNote['account_id'] = note.account_id
-        output.append(currNote)
 
     return jsonify(output)
 
@@ -189,12 +177,14 @@ def deleteNotes():
 
 @app.route('/events', methods=['GET'])
 def getEvents():
-    getEventsID = request.args.get("id")
+    getUserID = request.args.get("id")
     output = []
 
-    if getEventsID is None:
-        allEvents = Events.query.all()
-        for event in allEvents:
+    if getUserID is None:
+        return "no id specified"
+    else:
+        events = Events.query.filter_by(account_id=getUserID).all()
+        for event in events:
             currEvent = {}
             currEvent['id'] = event.id
             currEvent['time'] = event.time
@@ -202,15 +192,6 @@ def getEvents():
             currEvent['title'] = event.title
             currEvent['account_id'] = event.account_id
             output.append(currEvent)
-    else:
-        event = Events.query.get(getEventsID)
-        currEvent = {}
-        currEvent['id'] = event.id
-        currEvent['time'] = event.time
-        currEvent['date'] = event.date
-        currEvent['title'] = event.title
-        currEvent['account_id'] = event.account_id
-        output.append(currEvent)
 
     return jsonify(output)
 
@@ -237,12 +218,14 @@ def deleteEvents():
 
 @app.route('/sessions', methods=['GET'])
 def getSessions():
-    getSessionsID = request.args.get("id")
+    getUserID = request.args.get("id")
     output = []
 
-    if getSessionsID is None:
-        allSessions = Sessions.query.all()
-        for session in allSessions:
+    if getUserID is None:
+        return "no id specified"
+    else:
+        sessions = Sessions.query.filter_by(account_id=getUserID).all()
+        for session in sessions:
             currSession = {}
             currSession['id'] = session.id
             currSession['date'] = session.date
@@ -250,15 +233,6 @@ def getSessions():
             currSession['duration'] = session.duration
             currSession['account_id'] = session.account_id
             output.append(currSession)
-    else:
-        session = Sessions.query.get(getEventsID)
-        currSession = {}
-        currSession['id'] = session.id
-        currSession['date'] = session.date
-        currSession['time'] = session.time
-        currSession['duration'] = session.duration
-        currSession['account_id'] = session.account_id
-        output.append(currSession)
 
     return jsonify(output)
 

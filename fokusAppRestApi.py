@@ -1,6 +1,6 @@
-import os
-import re
-import click
+import json
+import xmltodict
+import xml.etree.ElementTree as ET
 from flask import Flask, render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask.cli import with_appcontext
@@ -62,6 +62,7 @@ def index():
 
 #==========================================================================Account Info Methods=======================================================================
 
+#GET
 @app.route('/accounts', methods=['GET'])
 def getAccounts():
     getAccountEmail = request.args.get("email")
@@ -74,6 +75,11 @@ def getAccounts():
             currAccount['id'] = account.id
             currAccount['email'] = account.email
             output.append(currAccount)
+        
+        #Create and write to json file
+        with open('data/accounts.json', 'w') as outfile:
+            json.dump(output, outfile)
+        outfile.close()
     else:
         account = Account.query.filter_by(email=getAccountEmail).first()
         currAccount = {}
@@ -81,8 +87,14 @@ def getAccounts():
         currAccount['email'] = account.email
         output.append(currAccount)
 
+        #Create and write to json file
+        with open('data/account.json', 'w') as outfile:
+            json.dump(output, outfile)
+        outfile.close()
+
     return jsonify(output)
 
+#POST
 @app.route('/accounts', methods=['POST'])
 def postAccounts():
     accountData = request.get_json()
@@ -95,6 +107,7 @@ def postAccounts():
 
 #==========================================================================Quotes Info Methods=======================================================================
 
+#GET
 @app.route('/quotes', methods=['GET'])
 def getQuotes():
     getUserID = request.args.get("id")
@@ -111,8 +124,14 @@ def getQuotes():
             currQuote['account_id'] = quote.account_id
             output.append(currQuote)
 
+        #Create and write to json file
+        with open('data/quotes.json', 'w') as outfile:
+            json.dump(output, outfile)
+        outfile.close()
+        
     return jsonify(output)
 
+#POST
 @app.route('/quotes', methods=['POST'])
 def postQuotes():
     quoteData = request.get_json()
@@ -124,6 +143,7 @@ def postQuotes():
 
 #==========================================================================Notes Info Methods=======================================================================
 
+#GET
 @app.route('/notes', methods=['GET'])
 def getNotes():
     getUserID = request.args.get("id")
@@ -142,8 +162,20 @@ def getNotes():
             currNote['account_id'] = note.account_id
             output.append(currNote)
 
+        #Create and write response to json file
+        with open('data/receivedNotes.json', 'w') as outfile:
+            json.dump(output, outfile)
+        outfile.close()
+        
+        #Convert received json data to XML
+        convertNotesJsonToXml('data/receivedNotes.json', 'xml/notes.xml', 4)
+        
+        #Convert XML data to a more structured JSON
+        convertFromXMLToJSON('xml/notes.xml', 'data/convertedNotes.json')
+
     return jsonify(output)
 
+#POST
 @app.route('/notes', methods=['POST'])
 def postNotes():
     noteData = request.get_json()
@@ -153,6 +185,7 @@ def postNotes():
     db.session.close()
     return jsonify(noteData)
 
+#UPDATE
 @app.route('/notesUpdate', methods=['POST'])
 def updateNotes():
     noteData = request.get_json()
@@ -162,6 +195,7 @@ def updateNotes():
 
     return jsonify(noteData)
 
+#DELETE
 @app.route('/notesDelete', methods=['GET'])
 def deleteNotes():
     getNotesDeleteID = request.args.get("id")
@@ -175,6 +209,7 @@ def deleteNotes():
 
 #=========================================================================Schedule Info Methods=====================================================================
 
+#GET
 @app.route('/events', methods=['GET'])
 def getEvents():
     getUserID = request.args.get("id")
@@ -195,6 +230,7 @@ def getEvents():
 
     return jsonify(output)
 
+#POST
 @app.route('/events', methods=['POST'])
 def postEvents():
     eventData = request.get_json()
@@ -204,6 +240,7 @@ def postEvents():
     db.session.close()
     return jsonify(eventData)
 
+#DELETE
 @app.route('/eventsDelete', methods=['GET'])
 def deleteEvents():
     getEventsDeleteID = request.args.get("id")
@@ -216,6 +253,7 @@ def deleteEvents():
 
 #=========================================================================Sessions Info Methods=====================================================================
 
+#GET
 @app.route('/sessions', methods=['GET'])
 def getSessions():
     getUserID = request.args.get("id")
@@ -236,6 +274,7 @@ def getSessions():
 
     return jsonify(output)
 
+#POST
 @app.route('/sessions', methods=['POST'])
 def postSessions():
     sessionData = request.get_json()
@@ -244,6 +283,56 @@ def postSessions():
     db.session.commit()
     db.session.close()
     return jsonify(sessionData)
+
+#=================================================================================Utility functions=====================================================================
+
+# Convert Notes from JSON to XML
+
+def convertNotesJsonToXml(jsonFile, xmlFile, volume):
+    #Loading json file data to variable data
+    with open(jsonFile, "r") as json_file:
+        data = json.load(json_file)
+    json_file.close()
+    
+    #Building the root element of the xml file
+    root = ET.Element("Notes")
+
+    for i in range(0, volume):
+        note = ET.SubElement(root, "Note")
+        #Building the subroot elements of the xml file
+        ET.SubElement(note, "NoteID").text = str(data[i]["id"])
+
+        accountInfo = ET.SubElement(note, "AccountInfo")
+        #Building subelements of account info
+        ET.SubElement(accountInfo, "AccountID").text = str(data[i]["account_id"])
+
+        #Building the subroot elements of the xml file
+        ET.SubElement(note, "Content").text = str(data[i]["content"])
+        ET.SubElement(note, "Subject").text = str(data[i]["subject"])
+        ET.SubElement(note, "Title").text = str(data[i]["title"])
+    
+
+    #Building the tree of XML elements using the root element
+    tree = ET.ElementTree(root)
+
+    #Writing the XML to output file
+    tree.write(xmlFile)
+
+
+#Convert from XML to JSON
+
+def convertFromXMLToJSON(xmlFile, jsonFile):
+    with open(xmlFile) as xml_file:
+        data_dict = xmltodict.parse(xml_file.read())
+    xml_file.close()
+
+    json_data = json.dumps(data_dict)
+
+    with open(jsonFile, "w") as json_file:
+        json_file.write(json_data)
+    json_file.close()
+#==============================================================================Start the application=====================================================================
+
 
 if __name__ == "__main__":
     app.run()

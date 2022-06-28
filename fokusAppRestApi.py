@@ -1,9 +1,10 @@
-import os
+from io import StringIO
 import json
 from jsonschema import Draft7Validator
 from sqlalchemy import false
 import xmltodict
 import xml.etree.ElementTree as ET
+from lxml import etree
 from flask import Flask, render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask.cli import with_appcontext
@@ -21,7 +22,7 @@ app.config['DATABASE_URL'] = uri
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
 db = SQLAlchemy(app)
 
-#==========================================================================Creating Tables===========================================================================
+#==========================================================================Models===========================================================================
 
 class Account(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -97,7 +98,7 @@ def getAccounts():
 
     return jsonify(output)
 
-#POST
+#INSERT
 @app.route('/accounts', methods=['POST'])
 def postAccounts():
     accountData = request.get_json()
@@ -134,7 +135,7 @@ def getQuotes():
         
     return jsonify(output)
 
-#POST
+#INSERT
 @app.route('/quotes', methods=['POST'])
 def postQuotes():
     quoteData = request.get_json()
@@ -149,9 +150,14 @@ def postQuotes():
 notesGetJsonSchemaLocation = 'jsonSchemas/notesGetSchema.json'
 notesInsertJsonSchemaLocation = 'jsonSchemas/notesInsertSchema.json'
 notesUpdateJsonSchemaLocation = 'jsonSchemas/notesUpdateSchema.json'
+notesDeleteJsonSchemaLocation = 'jsonSchemas/notesDeleteSchema.json'
+
 notesReceivedJsonDataLocation = 'data/receivedNotes.json'
 notesXmlFileLocation = 'xml/notes.xml'
-notesJsonDataConvertedFromXmlLocation = 'data/convertedNotes.json'
+notesJsonDataConvertedFromXmlLocation = 'data/convertedReceivedNotes.json'
+
+notesUpdateReceivedXmlInfoLocation = 'xml/noteUpdate.xml'
+notesUpdateInformationFromReceivedXmlJsonFileLocation = 'data/updateNoteInformation.json'
 
 #GET
 @app.route('/notes', methods=['GET'])
@@ -178,16 +184,17 @@ def getNotes():
             saveJsonResponse(notesReceivedJsonDataLocation, output)
 
             #Convert received json data to XML
-            convertNotesJsonToXml(notesReceivedJsonDataLocation, notesXmlFileLocation, 4)
+            convertNotesJsonToXml(notesReceivedJsonDataLocation, notesXmlFileLocation, len(output))
         
             #Convert XML data to a more structured JSON to "converted" file
             convertFromXMLToJSON(notesXmlFileLocation, notesJsonDataConvertedFromXmlLocation)
         else:
-            return "There were errors while validating the data!"
+            return "There were errors while validating json the data!"
         
     return jsonify(output)
 
-#POST
+#=================================================================================================================================================================================
+#INSERT WITH JSON
 @app.route('/notes', methods=['POST'])
 def postNotes():
     noteData = request.get_json()
@@ -199,25 +206,83 @@ def postNotes():
         db.session.commit()
         db.session.close()
         
-        return jsonify(noteData)
+    else: 
+        return "Json input validation failed!"
     
-    return "Json input validation failed!"
+    return "Successfully added note!"
+    
 
-#UPDATE
+#INSERT WITH XML
+@app.route('/notesXml', methods=['POST'])
+def postNotesXml():
+    noteData = request.get_data()
+
+    #Transforms data received into a non-flat xml file
+    info = ET.fromstring(noteData)
+    tree = ET.ElementTree(info)
+    tree.write('xml/noteInsertXml.xml')
+
+    if validateXmlResponse('xmlSchemas/noteInsertSchema.txt', info) == True:
+        print("Successfuly validated xml!")
+
+    #Iterates over xml and finds necessarry data belonging to tags
+    for item in tree.iter('note'):
+        newNoteSubject = item.find('subject').text
+        newNoteTitle = item.find('title').text
+        newNoteContent = item.find('content').text
+        newNoteAccountID = item.find('accountID').text
+    
+    note = Notes(subject=newNoteSubject, title=newNoteTitle, content=newNoteContent, account_id=newNoteAccountID)
+    db.session.add(note)
+    db.session.commit()
+    db.session.close()
+
+    return "Successfully added note!"
+
+#=================================================================================================================================================================================
+#UPDATE WITH JSON
 @app.route('/notesUpdate', methods=['POST'])
 def updateNotes():
     noteData = request.get_json()
-    print("note data:", noteData)
     
     # Validates sent JSON before update
     if validateJsonResponse(notesUpdateJsonSchemaLocation, noteData) == False:
-        updatedNote = Notes.query.filter_by(id=noteData['id']).update(dict(content=noteData['content']))
+        Notes.query.filter_by(id=noteData['id']).update(dict(content=noteData['content']))
         db.session.commit()
         db.session.close()
 
         return jsonify(noteData)
 
-#DELETE
+    return "Successfuly updated note!"
+
+#UPDATE WITH XML
+@app.route('/notesUpdateXml', methods=['POST'])
+def updateNotesXml():
+    noteData = request.get_data()
+
+    #Transforms data received into a non-flat xml file
+    info = ET.fromstring(noteData)
+    tree = ET.ElementTree(info)
+    tree.write(notesUpdateReceivedXmlInfoLocation)
+
+    #Iterates over xml and finds necessarry data belonging to tags
+    for item in tree.iter('note'):
+        updatedNoteID = item.find('id').text
+        updatedNoteContent = item.find('content').text
+
+    print(updatedNoteID)
+    print(updatedNoteContent)
+
+    # Validates sent JSON before update
+    Notes.query.filter_by(id=updatedNoteID).update(dict(content=updatedNoteContent))
+    db.session.commit()
+    db.session.close()
+
+    return "Successfuly posted notes update request in XML format!"
+
+
+#=================================================================================================================================================================================
+#DELETE BY GET
 @app.route('/notesDelete', methods=['GET'])
 def deleteNotes():
     getNotesDeleteID = request.args.get("id")
@@ -226,10 +291,52 @@ def deleteNotes():
     db.session.commit()
     db.session.close()
 
-    return "deleted note"
+    return "Successfuly deleted note!"
+
+#DELETE BY JSON POST
+@app.route('/notesDelete', methods=['POST'])
+def deleteNotesJson():
+    noteData = request.get_json()
+
+    print(noteData)
+
+    # Validates sent JSON and performs deletion
+    if validateJsonResponse(notesDeleteJsonSchemaLocation, noteData) == False:
+        noteToDelete = Notes.query.get(noteData['id'])
+        db.session.delete(noteToDelete)
+        db.session.commit()
+        db.session.close()
+    else:
+        return "There were errors while validating the json data!"
+
+    return "Successfuly deleted note!"
+
+#DELETE BY XML POST
+@app.route('/notesDeleteXml', methods=['POST'])
+def deleteNotesXml():
+    updatedNoteID = ''
+    noteData = request.get_data()
+
+    #Transforms data received into a non-flat xml file
+    info = ET.fromstring(noteData)
+    tree = ET.ElementTree(info)
+    tree.write(notesUpdateReceivedXmlInfoLocation)
+
+    #Iterates over xml and finds necessarry data belonging to tags
+    for item in tree.iter('note'):
+        print(item)
+        updatedNoteID = item.find('id').text
+    
+    #Deletes note based on id specified in xml sent
+    noteToDelete = Notes.query.get(updatedNoteID)
+    db.session.delete(noteToDelete)
+    db.session.commit()
+    db.session.close()
+
+    return "Successfuly deleted note!"
 
 
-#=========================================================================Schedule Info Methods=====================================================================
+#========================================================================================Schedule Info Methods=====================================================================
 
 #GET
 @app.route('/events', methods=['GET'])
@@ -252,7 +359,7 @@ def getEvents():
 
     return jsonify(output)
 
-#POST
+#INSERT
 @app.route('/events', methods=['POST'])
 def postEvents():
     eventData = request.get_json()
@@ -296,7 +403,7 @@ def getSessions():
 
     return jsonify(output)
 
-#POST
+#INSERT
 @app.route('/sessions', methods=['POST'])
 def postSessions():
     sessionData = request.get_json()
@@ -327,9 +434,26 @@ def validateJsonResponse(schemaLocation, dataReceived):
     else:
         print("Validated successfuly!")
 
-    print("Errors while validating:", listOfValidationErrors)
+    print("Errors while validating json:", listOfValidationErrors)
 
     return bool(listOfValidationErrors)
+
+# Validate XML reponse using XSD
+def validateXmlResponse(schemaLocation, xmlToValidate):
+    #Get schema as string
+    schemaFile = open(schemaLocation, 'r')
+    fileContent = schemaFile.read()
+    schemaFile.close()
+    
+    #Create schema from string
+    xmlschema_doc = etree.fromstring(fileContent)
+    xmlschema = etree.XMLSchema(file=schemaLocation)
+
+    xmlschema.validate(xmlschema_doc)
+
+    print("Errors while validating xml:", xmlschema.error_log)
+    
+    return xmlschema.validate(xmlschema_doc)
 
 # Save JSON response to file
 

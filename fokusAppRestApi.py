@@ -1,4 +1,7 @@
+import os
 import json
+from jsonschema import Draft7Validator
+from sqlalchemy import false
 import xmltodict
 import xml.etree.ElementTree as ET
 from flask import Flask, render_template, jsonify, request
@@ -142,6 +145,13 @@ def postQuotes():
     return jsonify(quoteData)
 
 #==========================================================================Notes Info Methods=======================================================================
+#Files locations
+notesGetJsonSchemaLocation = 'jsonSchemas/notesGetSchema.json'
+notesInsertJsonSchemaLocation = 'jsonSchemas/notesInsertSchema.json'
+notesUpdateJsonSchemaLocation = 'jsonSchemas/notesUpdateSchema.json'
+notesReceivedJsonDataLocation = 'data/receivedNotes.json'
+notesXmlFileLocation = 'xml/notes.xml'
+notesJsonDataConvertedFromXmlLocation = 'data/convertedNotes.json'
 
 #GET
 @app.route('/notes', methods=['GET'])
@@ -162,38 +172,50 @@ def getNotes():
             currNote['account_id'] = note.account_id
             output.append(currNote)
 
-        #Create and write response to json file
-        with open('data/receivedNotes.json', 'w') as outfile:
-            json.dump(output, outfile)
-        outfile.close()
-        
-        #Convert received json data to XML
-        convertNotesJsonToXml('data/receivedNotes.json', 'xml/notes.xml', 4)
-        
-        #Convert XML data to a more structured JSON
-        convertFromXMLToJSON('xml/notes.xml', 'data/convertedNotes.json')
+        #Validate and save json response
+        if validateJsonResponse(notesGetJsonSchemaLocation, output) == False:
+            #Save received json data to "received" file
+            saveJsonResponse(notesReceivedJsonDataLocation, output)
 
+            #Convert received json data to XML
+            convertNotesJsonToXml(notesReceivedJsonDataLocation, notesXmlFileLocation, 4)
+        
+            #Convert XML data to a more structured JSON to "converted" file
+            convertFromXMLToJSON(notesXmlFileLocation, notesJsonDataConvertedFromXmlLocation)
+        else:
+            return "There were errors while validating the data!"
+        
     return jsonify(output)
 
 #POST
 @app.route('/notes', methods=['POST'])
 def postNotes():
     noteData = request.get_json()
-    note = Notes(subject=noteData['subject'], title=noteData['title'], content=noteData['content'], account_id=noteData['account_id'])
-    db.session.add(note)
-    db.session.commit()
-    db.session.close()
-    return jsonify(noteData)
+
+    #Validates sent JSON before insert
+    if validateJsonResponse(notesInsertJsonSchemaLocation, noteData) == False:
+        note = Notes(subject=noteData['subject'], title=noteData['title'], content=noteData['content'], account_id=noteData['account_id'])
+        db.session.add(note)
+        db.session.commit()
+        db.session.close()
+        
+        return jsonify(noteData)
+    
+    return "Json input validation failed!"
 
 #UPDATE
 @app.route('/notesUpdate', methods=['POST'])
 def updateNotes():
     noteData = request.get_json()
-    updatedNote = Notes.query.filter_by(id=noteData['id']).update(dict(content=noteData['content']))
-    db.session.commit()
-    db.session.close()
+    print("note data:", noteData)
+    
+    # Validates sent JSON before update
+    if validateJsonResponse(notesUpdateJsonSchemaLocation, noteData) == False:
+        updatedNote = Notes.query.filter_by(id=noteData['id']).update(dict(content=noteData['content']))
+        db.session.commit()
+        db.session.close()
 
-    return jsonify(noteData)
+        return jsonify(noteData)
 
 #DELETE
 @app.route('/notesDelete', methods=['GET'])
@@ -285,6 +307,38 @@ def postSessions():
     return jsonify(sessionData)
 
 #=================================================================================Utility functions=====================================================================
+
+# Validate JSON response
+# Returns False if error list was empty, meaning validation was successful
+# Returns True if error lsit is not empty, meaning there were errors while validating the data
+
+def validateJsonResponse(schemaLocation, dataReceived):
+    #Validate schema
+    with open(schemaLocation) as schemaFile:
+        schema = json.load(schemaFile)
+    schemaFile.close()
+
+    validator = Draft7Validator(schema)
+
+    listOfValidationErrors = list(validator.iter_errors(dataReceived))
+
+    if(bool(listOfValidationErrors)):
+        print("There were errors while validating the data!")
+    else:
+        print("Validated successfuly!")
+
+    print("Errors while validating:", listOfValidationErrors)
+
+    return bool(listOfValidationErrors)
+
+# Save JSON response to file
+
+def saveJsonResponse(outputLocation, dataReceived):
+    #Create and write response to json file
+    with open(outputLocation, 'w') as outfile:
+        json.dump(dataReceived, outfile)
+    outfile.close()
+
 
 # Convert Notes from JSON to XML
 

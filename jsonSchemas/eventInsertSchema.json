@@ -1,0 +1,30 @@
+{
+    "type": "object",
+    "properties": {
+        "date": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+        },
+        "time": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+        },
+        "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+        },
+        "account_id": {
+            "type": "number"
+        }
+    },
+    "required": [
+        "date",
+        "time",
+        "title",
+        "account_id"
+    ],
+    "additionalProperties": false
+}

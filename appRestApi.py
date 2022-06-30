@@ -196,7 +196,6 @@ def updateAccountXml():
         updatedAccountID = item.find('id').text
         updatedAccountContent = item.find('email').text
 
-    # Validates sent JSON before update
     Account.query.filter_by(id=updatedAccountID).update(dict(email=updatedAccountContent))
     db.session.commit()
     db.session.close()
@@ -353,7 +352,6 @@ def updateQuoteXml():
         updatedQuoteID = item.find('id').text
         updatedQuoteContent = item.find('content').text
 
-    # Validates sent JSON before update
     Quotes.query.filter_by(id=updatedQuoteID).update(dict(content=updatedQuoteContent))
     db.session.commit()
     db.session.close()
@@ -452,7 +450,7 @@ def getNotes():
 #=================================================================================================================================================================================
 #INSERT
 @app.route('/notes', methods=['POST'])
-def postNotes():
+def insertNote():
     if(request.is_json):
         noteData = request.get_json()
 
@@ -466,12 +464,12 @@ def postNotes():
             return "Json input validation failed!"
 
     else:
-        postNotesXml()
+        insertNoteXml()
     
     return "Successfully added note!"
 
 #INSERT WITH XML
-def postNotesXml():
+def insertNoteXml():
     noteData = request.get_data()
 
     #Transforms data received into a non-flat xml file
@@ -497,7 +495,7 @@ def postNotesXml():
     return "Successfully added note!"
 
 #=================================================================================================================================================================================
-#UPDATE WITH JSON
+#UPDATE
 @app.route('/notesUpdate', methods=['POST'])
 def updateNotes():
     if(request.is_json):
@@ -528,10 +526,6 @@ def updateNotesXml():
         updatedNoteID = item.find('id').text
         updatedNoteContent = item.find('content').text
 
-    print(updatedNoteID)
-    print(updatedNoteContent)
-
-    # Validates sent JSON before update
     Notes.query.filter_by(id=updatedNoteID).update(dict(content=updatedNoteContent))
     db.session.commit()
     db.session.close()
@@ -540,7 +534,7 @@ def updateNotesXml():
 
 
 #=================================================================================================================================================================================
-#DELETE BY JSON POST
+#DELETE
 @app.route('/notesDelete', methods=['POST'])
 def deleteNotes():
     if(request.is_json):
@@ -562,7 +556,7 @@ def deleteNotes():
 
 #DELETE BY XML POST
 def deleteNotesXml():
-    updatedNoteID = ''
+    noteToDeleteID = ''
     noteData = request.get_data()
 
     #Transforms data received into a non-flat xml file
@@ -571,11 +565,10 @@ def deleteNotesXml():
 
     #Iterates over xml and finds necessarry data belonging to tags
     for item in tree.iter('note'):
-        print(item)
-        updatedNoteID = item.find('id').text
+        noteToDeleteID = item.find('id').text
     
     #Deletes note based on id specified in xml sent
-    noteToDelete = Notes.query.get(updatedNoteID)
+    noteToDelete = Notes.query.get(noteToDeleteID)
     db.session.delete(noteToDelete)
     db.session.commit()
     db.session.close()
@@ -585,6 +578,9 @@ def deleteNotesXml():
 
 #========================================================================================Schedule Info Methods=====================================================================
 eventsGetSchemaLocation = 'jsonSchemas/eventsGetSchema.json'
+eventInsertSchemaLocation = 'jsonSchemas/eventInsertSchema.json'
+eventDeleteJsonSchemaLocation = 'jsonSchemas/eventDeleteSchema.json'
+eventUpdateSchemaLocation = 'jsonSchemas/eventUpdateSchema.json'
 
 eventsReceivedJsonDataLocation = 'data/eventsReceived.json'
 
@@ -618,24 +614,131 @@ def getEvents():
 
 #INSERT
 @app.route('/events', methods=['POST'])
-def postEvents():
-    eventData = request.get_json()
-    event = Events(date=eventData['date'], time=eventData['time'], title=eventData['title'], account_id=eventData['account_id'])
+def insertEvent():
+    if(request.is_json):
+        eventData = request.get_json()
+
+        #Validates sent JSON before insert
+        if validateJsonResponse(eventInsertSchemaLocation, eventData) == False:
+            event = Events(date=eventData['date'], time=eventData['time'], title=eventData['title'], account_id=eventData['account_id'])
+            db.session.add(event)
+            db.session.commit()
+            db.session.close()
+        else: 
+            return "Json input validation failed!"
+    
+    else:
+        insertEventXml()
+
+    return "Successfully added event!"
+
+#INSERT WITH XML
+def insertEventXml():
+    eventData = request.get_data()
+
+    #Transforms data received into a non-flat xml file
+    info = ET.fromstring(eventData)
+    tree = ET.ElementTree(info)
+
+    # if validateXmlResponse('xmlSchemas/noteInsertSchema.txt', info) == True:
+    #     print("Successfuly validated xml!")
+
+    #Iterates over xml and finds necessarry data belonging to tags
+    for item in tree.iter('event'):
+        newEventDate = item.find('date').text
+        newEventTime = item.find('time').text
+        newEventTitle = item.find('title').text
+        newEventAccountID = item.find('accountID').text
+    
+    event = Events(date=newEventDate, time=newEventTime, title=newEventTitle, account_id=newEventAccountID)
     db.session.add(event)
     db.session.commit()
     db.session.close()
-    return jsonify(eventData)
+
+    return "Successfully added event!"
+
+#UPDATE
+@app.route('/eventUpdate', methods=['POST'])
+def updateEvent():
+    if(request.is_json):
+        eventData = request.get_json()
+    
+        # Validates sent JSON before update
+        if validateJsonResponse(eventUpdateSchemaLocation, eventData) == False:
+            Events.query.filter_by(id=eventData['id']).update(dict(date=eventData['date']))
+            Events.query.filter_by(id=eventData['id']).update(dict(time=eventData['time']))
+            Events.query.filter_by(id=eventData['id']).update(dict(title=eventData['title']))
+            db.session.commit()
+            db.session.close()
+
+    else:
+        updateEventXml()
+
+    return "Successfuly updated event!"
+
+#UPDATE WITH XML
+def updateEventXml():
+    eventData = request.get_data()
+
+    #Transforms data received into a non-flat xml file
+    info = ET.fromstring(eventData)
+    tree = ET.ElementTree(info)
+
+    #Iterates over xml and finds necessarry data belonging to tags
+    for item in tree.iter('event'):
+        updatedEventID = item.find('id').text
+        updatedEventDate = item.find('date').text
+        updatedEventTime = item.find('time').text
+        updatedEventTitle = item.find('title').text
+
+    Events.query.filter_by(id=updatedEventID).update(dict(date=updatedEventDate))
+    Events.query.filter_by(id=updatedEventID).update(dict(time=updatedEventTime))
+    Events.query.filter_by(id=updatedEventID).update(dict(title=updatedEventTitle))
+    db.session.commit()
+    db.session.close()
+
+    return "Successfuly updated event!"
 
 #DELETE
-@app.route('/eventsDelete', methods=['GET'])
-def deleteEvents():
-    getEventsDeleteID = request.args.get("id")
-    eventToDelete = Events.query.get(getEventsDeleteID)
+@app.route('/eventDelete', methods=['POST'])
+def deleteEvent():
+    if(request.is_json):
+        eventData = request.get_json()
+
+        # Validates sent JSON and performs deletion
+        if validateJsonResponse(eventDeleteJsonSchemaLocation, eventData) == False:
+            eventToDelete = Events.query.get(eventData['id'])
+            db.session.delete(eventToDelete)
+            db.session.commit()
+            db.session.close()
+        else:
+            return "There were errors while validating the json data!"
+
+    else:
+        deleteEventXml()
+
+    return "Successfuly deleted event!"
+
+#DELETE BY XML POST
+def deleteEventXml():
+    eventToDeleteID = ''
+    eventData = request.get_data()
+
+    #Transforms data received into a non-flat xml file
+    info = ET.fromstring(eventData)
+    tree = ET.ElementTree(info)
+
+    #Iterates over xml and finds necessarry data belonging to tags
+    for item in tree.iter('event'):
+        eventToDeleteID = item.find('id').text
+    
+    #Deletes note based on id specified in xml sent
+    eventToDelete = Events.query.get(eventToDeleteID)
     db.session.delete(eventToDelete)
     db.session.commit()
     db.session.close()
 
-    return "deleted event"
+    return "Successfuly deleted note!"
 
 #=========================================================================Sessions Info Methods=====================================================================
 

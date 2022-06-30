@@ -58,24 +58,27 @@ class Sessions(db.Model):
     duration = db.Column(db.Integer, unique=False)
     account_id=db.Column(db.Integer, db.ForeignKey('account.id'))
 
-#============================================================================Api Home Page============================================================================
+#=========================================================================================Api Home Page============================================================================
 
 @app.route('/')
 def index():
     return render_template("index.html")
 
-#==========================================================================Account Info Methods=======================================================================
+#===========================================================================Account info methods===================================================================================
+#Files locations
 accountsGetJsonSchemaLocation = 'jsonSchemas/accountsGetSchema.json'
 accountGetJsonSchemaLocation = 'jsonSchemas/accountGetSchema.json'
+accountInsertSchemaLocation = 'jsonSchemas/accountInsertSchema.json'
+accountDeleteSchemaLocation = 'jsonSchemas/accountDeleteSchema.json'
+
 accountsReceivedJsonDataLocation = 'data/accountsReceived.json'
 accountReceivedJsonDataLocation = 'data/accountReceived.json'
+
 #GET
 @app.route('/accounts', methods=['GET'])
 def getAccounts():
     getAccountEmail = request.args.get("email")
     output = []
-
-    print(getAccountEmail)
 
     if getAccountEmail is None:
         allAccounts = Account.query.all()
@@ -120,16 +123,91 @@ def getAccounts():
 
     return jsonify(output)
 
+#=================================================================================================================================================================================
 #INSERT
 @app.route('/accounts', methods=['POST'])
-def postAccounts():
-    accountData = request.get_json()
-    account = Account(email=accountData['email'])
+def insertAccount():
+    if(request.is_json):
+        accountData = request.get_json()
+
+        #Validates sent JSON before insert
+        if validateJsonResponse(accountInsertSchemaLocation, accountData) == False:
+            account = Account(email=accountData['email'])
+            db.session.add(account)
+            db.session.commit()
+            db.session.close()
+
+        else: 
+            return "Json input validation failed!"
+
+    else:
+        insertAccountXml()
+
+    return "Successfuly inserted account!"
+
+def insertAccountXml():
+    accountData = request.get_data()
+
+    #Transforms data received into a non-flat xml file
+    info = ET.fromstring(accountData)
+    tree = ET.ElementTree(info)
+
+    # if validateXmlResponse('xmlSchemas/noteInsertSchema.txt', info) == True:
+    #     print("Successfuly validated xml!")
+
+    #Iterates over xml and finds necessarry data belonging to tags
+    for item in tree.iter('account'):
+        newAccountEmail = item.find('email').text
+    
+    account = Account(email=newAccountEmail)
     db.session.add(account)
     db.session.commit()
     db.session.close()
 
-    return jsonify(accountData)
+    return "Successfully added note!"
+
+
+#DELETE BY JSON POST
+@app.route('/accountsDelete', methods=['POST'])
+def deleteAccount():
+    if(request.is_json):
+        accountData = request.get_json()
+
+        # Validates sent JSON and performs deletion
+        if validateJsonResponse(accountDeleteSchemaLocation, accountData) == False:
+            accountToDelete = Account.query.get(accountData['id'])
+            db.session.delete(accountToDelete)
+            db.session.commit()
+            db.session.close()
+        else:
+            return "There were errors while validating the json data!"
+
+    else:
+        deleteAccountXml()
+
+    return "Successfuly deleted account!"
+
+#DELETE BY XML POST
+def deleteAccountXml():
+    accountID = ''
+    accountData = request.get_data()
+
+    #Transforms data received into a non-flat xml file
+    info = ET.fromstring(accountData)
+    tree = ET.ElementTree(info)
+
+    #Iterates over xml and finds necessarry data belonging to tags
+    for item in tree.iter('account'):
+        print(item)
+        accountID = item.find('id').text
+    
+    #Deletes note based on id specified in xml sent
+    accountToDelete = Account.query.get(accountID)
+    db.session.delete(accountToDelete)
+    db.session.commit()
+    db.session.close()
+
+    return "Successfuly deleted note!"
 
 #==========================================================================Quotes Info Methods=======================================================================
 
@@ -216,26 +294,27 @@ def getNotes():
     return jsonify(output)
 
 #=================================================================================================================================================================================
-#INSERT WITH JSON
+#INSERT
 @app.route('/notes', methods=['POST'])
 def postNotes():
-    noteData = request.get_json()
+    if(request.is_json):
+        noteData = request.get_json()
 
-    #Validates sent JSON before insert
-    if validateJsonResponse(notesInsertJsonSchemaLocation, noteData) == False:
-        note = Notes(subject=noteData['subject'], title=noteData['title'], content=noteData['content'], account_id=noteData['account_id'])
-        db.session.add(note)
-        db.session.commit()
-        db.session.close()
-        
-    else: 
-        return "Json input validation failed!"
+        #Validates sent JSON before insert
+        if validateJsonResponse(notesInsertJsonSchemaLocation, noteData) == False:
+            note = Notes(subject=noteData['subject'], title=noteData['title'], content=noteData['content'], account_id=noteData['account_id'])
+            db.session.add(note)
+            db.session.commit()
+            db.session.close()
+        else: 
+            return "Json input validation failed!"
+
+    else:
+        postNotesXml()
     
     return "Successfully added note!"
-    
 
 #INSERT WITH XML
-@app.route('/notesXml', methods=['POST'])
 def postNotesXml():
     noteData = request.get_data()
 
@@ -244,8 +323,8 @@ def postNotesXml():
     tree = ET.ElementTree(info)
     tree.write('xml/noteInsertXml.xml')
 
-    if validateXmlResponse('xmlSchemas/noteInsertSchema.txt', info) == True:
-        print("Successfuly validated xml!")
+    # if validateXmlResponse('xmlSchemas/noteInsertSchema.txt', info) == True:
+    #     print("Successfuly validated xml!")
 
     #Iterates over xml and finds necessarry data belonging to tags
     for item in tree.iter('note'):
@@ -265,20 +344,21 @@ def postNotesXml():
 #UPDATE WITH JSON
 @app.route('/notesUpdate', methods=['POST'])
 def updateNotes():
-    noteData = request.get_json()
+    if(request.is_json):
+        noteData = request.get_json()
     
-    # Validates sent JSON before update
-    if validateJsonResponse(notesUpdateJsonSchemaLocation, noteData) == False:
-        Notes.query.filter_by(id=noteData['id']).update(dict(content=noteData['content']))
-        db.session.commit()
-        db.session.close()
+        # Validates sent JSON before update
+        if validateJsonResponse(notesUpdateJsonSchemaLocation, noteData) == False:
+            Notes.query.filter_by(id=noteData['id']).update(dict(content=noteData['content']))
+            db.session.commit()
+            db.session.close()
 
-        return jsonify(noteData)
+    else:
+        updateNotesXml()
 
     return "Successfuly updated note!"
 
 #UPDATE WITH XML
-@app.route('/notesUpdateXml', methods=['POST'])
 def updateNotesXml():
     noteData = request.get_data()
 
@@ -300,41 +380,31 @@ def updateNotesXml():
     db.session.commit()
     db.session.close()
 
-    return "Successfuly posted notes update request in XML format!"
+    return "Successfuly updated note!"
 
 
 #=================================================================================================================================================================================
-#DELETE BY GET
-@app.route('/notesDelete', methods=['GET'])
-def deleteNotes():
-    getNotesDeleteID = request.args.get("id")
-    noteToDelete = Notes.query.get(getNotesDeleteID)
-    db.session.delete(noteToDelete)
-    db.session.commit()
-    db.session.close()
-
-    return "Successfuly deleted note!"
-
 #DELETE BY JSON POST
 @app.route('/notesDelete', methods=['POST'])
-def deleteNotesJson():
-    noteData = request.get_json()
+def deleteNotes():
+    if(request.is_json):
+        noteData = request.get_json()
 
-    print(noteData)
+        # Validates sent JSON and performs deletion
+        if validateJsonResponse(notesDeleteJsonSchemaLocation, noteData) == False:
+            noteToDelete = Notes.query.get(noteData['id'])
+            db.session.delete(noteToDelete)
+            db.session.commit()
+            db.session.close()
+        else:
+            return "There were errors while validating the json data!"
 
-    # Validates sent JSON and performs deletion
-    if validateJsonResponse(notesDeleteJsonSchemaLocation, noteData) == False:
-        noteToDelete = Notes.query.get(noteData['id'])
-        db.session.delete(noteToDelete)
-        db.session.commit()
-        db.session.close()
     else:
-        return "There were errors while validating the json data!"
+        deleteNotesXml()
 
     return "Successfuly deleted note!"
 
 #DELETE BY XML POST
-@app.route('/notesDeleteXml', methods=['POST'])
 def deleteNotesXml():
     updatedNoteID = ''
     noteData = request.get_data()
@@ -342,7 +412,6 @@ def deleteNotesXml():
     #Transforms data received into a non-flat xml file
     info = ET.fromstring(noteData)
     tree = ET.ElementTree(info)
-    tree.write(notesUpdateReceivedXmlInfoLocation)
 
     #Iterates over xml and finds necessarry data belonging to tags
     for item in tree.iter('note'):

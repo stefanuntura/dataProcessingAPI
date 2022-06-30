@@ -1,0 +1,21 @@
+{
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "email": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+            },
+            "id": {
+                "type": "number"
+            }
+        }
+    },
+    "required": [
+        "email",
+        "id"
+    ],
+    "additionalProperties": false
+}

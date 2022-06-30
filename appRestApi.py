@@ -66,12 +66,16 @@ def index():
 
 #==========================================================================Account Info Methods=======================================================================
 accountsGetJsonSchemaLocation = 'jsonSchemas/accountsGetSchema.json'
+accountGetJsonSchemaLocation = 'jsonSchemas/accountGetSchema.json'
 accountsReceivedJsonDataLocation = 'data/accountsReceived.json'
+accountReceivedJsonDataLocation = 'data/accountReceived.json'
 #GET
 @app.route('/accounts', methods=['GET'])
 def getAccounts():
     getAccountEmail = request.args.get("email")
     output = []
+
+    print(getAccountEmail)
 
     if getAccountEmail is None:
         allAccounts = Account.query.all()
@@ -101,10 +105,10 @@ def getAccounts():
         currAccount['email'] = account.email
         output.append(currAccount)
 
-        # #Validate and save json response
-        # if validateJsonResponse(notesGetJsonSchemaLocation, output) == False:
-        #     #Save received json data to "received" file
-        #     saveJsonResponse(notesReceivedJsonDataLocation, output)
+        #Validate and save json response
+        if validateJsonResponse(accountGetJsonSchemaLocation, output) == False:
+            #Save received json data to "received" file
+            saveJsonResponse(accountReceivedJsonDataLocation, output)
 
         #     #Convert received json data to XML
         #     convertNotesJsonToXml(notesReceivedJsonDataLocation, notesXmlFileLocation, len(output))

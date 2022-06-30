@@ -70,6 +70,7 @@ accountsGetJsonSchemaLocation = 'jsonSchemas/accountsGetSchema.json'
 accountGetJsonSchemaLocation = 'jsonSchemas/accountGetSchema.json'
 accountInsertSchemaLocation = 'jsonSchemas/accountInsertSchema.json'
 accountDeleteSchemaLocation = 'jsonSchemas/accountDeleteSchema.json'
+accountUpdateSchemaLocation = 'jsonSchemas/accountUpdateSchema.json'
 
 accountsReceivedJsonDataLocation = 'data/accountsReceived.json'
 accountReceivedJsonDataLocation = 'data/accountReceived.json'
@@ -165,6 +166,43 @@ def insertAccountXml():
     db.session.close()
 
     return "Successfully added note!"
+
+#UPDATE WITH JSON
+@app.route('/accountUpdate', methods=['POST'])
+def updateAccount():
+    if(request.is_json):
+        accountData = request.get_json()
+    
+        # Validates sent JSON before update
+        if validateJsonResponse(accountUpdateSchemaLocation, accountData) == False:
+            Account.query.filter_by(id=accountData['id']).update(dict(email=accountData['email']))
+            db.session.commit()
+            db.session.close()
+
+    else:
+        updateAccountXml()
+
+    return "Successfuly updated account!"
+
+#UPDATE WITH XML
+def updateAccountXml():
+    accountData = request.get_data()
+
+    #Transforms data received into a non-flat xml file
+    info = ET.fromstring(accountData)
+    tree = ET.ElementTree(info)
+
+    #Iterates over xml and finds necessarry data belonging to tags
+    for item in tree.iter('account'):
+        updatedAccountID = item.find('id').text
+        updatedAccountContent = item.find('email').text
+
+    # Validates sent JSON before update
+    Account.query.filter_by(id=updatedAccountID).update(dict(email=updatedAccountContent))
+    db.session.commit()
+    db.session.close()
+
+    return "Successfuly updated account!"
 
 
 #DELETE BY JSON POST

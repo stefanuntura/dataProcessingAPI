@@ -1,0 +1,28 @@
+{
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "number"
+        },
+        "date": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+        },
+        "time": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+        },
+        "duration": {
+            "type": "number"
+        }
+    },
+    "required": [
+        "id",
+        "date",
+        "time",
+        "duration"
+    ],
+    "additionalProperties": false
+}

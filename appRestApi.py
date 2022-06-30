@@ -671,6 +671,9 @@ def updateEvent():
             db.session.commit()
             db.session.close()
 
+        else:
+            return "There were errors while validating the json data"
+
     else:
         updateEventXml()
 
@@ -741,6 +744,12 @@ def deleteEventXml():
     return "Successfuly deleted note!"
 
 #=========================================================================Sessions Info Methods=====================================================================
+sessionsGetSchemaLocation = 'jsonSchemas/sessionsGetSchema.json'
+sessionInsertSchemaLocation = 'jsonSchemas/sessionInsertSchema.json'
+sessionUpdateSchemaLocation = 'jsonSchemas/sessionUpdateSchema.json'
+sessionDeleteJsonSchemaLocation = 'jsonSchemas/sessionDeleteSchema.json'
+
+sessionsReceivedJsonDataLocation = 'data/sessionsReceived.json'
 
 #GET
 @app.route('/sessions', methods=['GET'])
@@ -761,17 +770,145 @@ def getSessions():
             currSession['account_id'] = session.account_id
             output.append(currSession)
 
+            if validateJsonResponse(sessionsGetSchemaLocation, output) == False:
+                #Save received json data to "received" file
+                saveJsonResponse(sessionsReceivedJsonDataLocation, output)
+                
+            else:
+                return "There were errors while validating the json data"
+
     return jsonify(output)
 
 #INSERT
 @app.route('/sessions', methods=['POST'])
-def postSessions():
-    sessionData = request.get_json()
-    session = Sessions(date=sessionData['date'], time=sessionData['time'], duration=sessionData['duration'], account_id=sessionData['account_id'])
+def insertSession():
+    if(request.is_json):
+        sessionData = request.get_json()
+
+        #Validates sent JSON before insert
+        if validateJsonResponse(sessionInsertSchemaLocation, sessionData) == False:
+            session = Sessions(date=sessionData['date'], time=sessionData['time'], duration=sessionData['duration'], account_id=sessionData['account_id'])
+            db.session.add(session)
+            db.session.commit()
+            db.session.close()
+        else: 
+            return "Json input validation failed!"
+    
+    else:
+        insertSessionXml()
+    
+    return "Successfully added session!"
+
+#INSERT WITH XML
+def insertSessionXml():
+    sessionData = request.get_data()
+
+    #Transforms data received into a non-flat xml file
+    info = ET.fromstring(sessionData)
+    tree = ET.ElementTree(info)
+
+    # if validateXmlResponse('xmlSchemas/noteInsertSchema.txt', info) == True:
+    #     print("Successfuly validated xml!")
+
+    #Iterates over xml and finds necessarry data belonging to tags
+    for item in tree.iter('session'):
+        newSessionDate = item.find('date').text
+        newSessionTime = item.find('time').text
+        newSessionDuration = item.find('duration').text
+        newSessionAccountID = item.find('accountID').text
+    
+    session = Sessions(date=newSessionDate, time=newSessionTime, duration=newSessionDuration, account_id=newSessionAccountID)
     db.session.add(session)
     db.session.commit()
     db.session.close()
-    return jsonify(sessionData)
+
+    return "Successfully added session!"
+
+#UPDATE
+@app.route('/sessionUpdate', methods=['POST'])
+def updateSession():
+    if(request.is_json):
+        sessionData = request.get_json()
+    
+        # Validates sent JSON before update
+        if validateJsonResponse(sessionUpdateSchemaLocation, sessionData) == False:
+            Sessions.query.filter_by(id=sessionData['id']).update(dict(date=sessionData['date']))
+            Sessions.query.filter_by(id=sessionData['id']).update(dict(time=sessionData['time']))
+            Sessions.query.filter_by(id=sessionData['id']).update(dict(duration=sessionData['duration']))
+            db.session.commit()
+            db.session.close()
+        
+        else:
+            return "There were errors while validating the json data"
+
+    else:
+        updateSessionXml()
+
+    return "Successfuly updated session!"
+
+#UPDATE WITH XML
+def updateSessionXml():
+    sessionData = request.get_data()
+
+    #Transforms data received into a non-flat xml file
+    info = ET.fromstring(sessionData)
+    tree = ET.ElementTree(info)
+
+    #Iterates over xml and finds necessarry data belonging to tags
+    for item in tree.iter('session'):
+        updatedSessionID = item.find('id').text
+        updatedSessionDate = item.find('date').text
+        updatedSessionTime = item.find('time').text
+        updatedSessionDuration = item.find('duration').text
+
+    Sessions.query.filter_by(id=updatedSessionID).update(dict(date=updatedSessionDate))
+    Sessions.query.filter_by(id=updatedSessionID).update(dict(time=updatedSessionTime))
+    Sessions.query.filter_by(id=updatedSessionID).update(dict(duration=updatedSessionDuration))
+    db.session.commit()
+    db.session.close()
+
+    return "Successfuly updated session!"
+
+#DELETE
+@app.route('/sessionDelete', methods=['POST'])
+def deleteSession():
+    if(request.is_json):
+        sessionData = request.get_json()
+
+        # Validates sent JSON and performs deletion
+        if validateJsonResponse(sessionDeleteJsonSchemaLocation, sessionData) == False:
+            sessionToDelete = Sessions.query.get(sessionData['id'])
+            db.session.delete(sessionToDelete)
+            db.session.commit()
+            db.session.close()
+        else:
+            return "There were errors while validating the json data!"
+
+    else:
+        deleteSessionXml()
+
+    return "Successfuly deleted session!"
+
+#DELETE BY XML POST
+def deleteSessionXml():
+    sessionToDeleteID = ''
+    sessionData = request.get_data()
+
+    #Transforms data received into a non-flat xml file
+    info = ET.fromstring(sessionData)
+    tree = ET.ElementTree(info)
+
+    #Iterates over xml and finds necessarry data belonging to tags
+    for item in tree.iter('session'):
+        sessionToDeleteID = item.find('id').text
+    
+    #Deletes note based on id specified in xml sent
+    sessionToDelete = Sessions.query.get(sessionToDeleteID)
+    db.session.delete(sessionToDelete)
+    db.session.commit()
+    db.session.close()
+
+    return "Successfuly deleted session!"
 
 #=================================================================================Utility functions=====================================================================
 

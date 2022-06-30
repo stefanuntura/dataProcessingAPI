@@ -1,18 +1,18 @@
 {
     "type": "object",
     "properties": {
-        "id": {
-            "type": "number"
-        },
         "content": {
             "type": "string",
             "minLength": 1,
             "maxLength": 255
+        },
+        "account_id": {
+            "type": "number"
         }
     },
     "required": [
-        "id",
-        "content"
+        "content",
+        "account_id"
     ],
-    "additionalProperties": true
+    "additionalProperties": false
 }

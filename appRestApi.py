@@ -7,7 +7,6 @@ import xml.etree.ElementTree as ET
 from lxml import etree
 from flask import Flask, render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
-from flask.cli import with_appcontext
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
@@ -167,7 +166,7 @@ def insertAccountXml():
 
     return "Successfully added note!"
 
-#UPDATE WITH JSON
+#UPDATE
 @app.route('/accountUpdate', methods=['POST'])
 def updateAccount():
     if(request.is_json):
@@ -205,7 +204,7 @@ def updateAccountXml():
     return "Successfuly updated account!"
 
 
-#DELETE BY JSON POST
+#DELETE
 @app.route('/accountsDelete', methods=['POST'])
 def deleteAccount():
     if(request.is_json):
@@ -245,9 +244,15 @@ def deleteAccountXml():
     db.session.commit()
     db.session.close()
 
-    return "Successfuly deleted note!"
+    return "Successfuly deleted account!"
 
 #==========================================================================Quotes Info Methods=======================================================================
+quoteGetSchemaLocation = 'jsonSchemas/quoteGetSchema.json'
+quoteInsertSchemaLocation = 'jsonSchemas/quoteInsertSchema.json'
+quoteUpdateJsonSchemaLocation = 'jsonSchemas/quoteUpdateSchema.json'
+quoteDeleteJsonSchemaLocation = 'jsonSchemas/quoteDeleteSchema.json'
+
+quoteReceivedJsonDataLocation = 'data/quoteReceived.json'
 
 #GET
 @app.route('/quotes', methods=['GET'])
@@ -256,7 +261,7 @@ def getQuotes():
     output = []
 
     if getUserID is None:
-        return "no id specified"
+        return "no user id specified"
     else:
         quotes = Quotes.query.filter_by(account_id=getUserID).all()
         for quote in quotes:
@@ -266,22 +271,135 @@ def getQuotes():
             currQuote['account_id'] = quote.account_id
             output.append(currQuote)
 
-        #Create and write to json file
-        with open('data/quotes.json', 'w') as outfile:
-            json.dump(output, outfile)
-        outfile.close()
+        if validateJsonResponse(quoteGetSchemaLocation, output) == False:
+            #Save received json data to "received" file
+            saveJsonResponse(quoteReceivedJsonDataLocation, output)
+        
+        else:
+            return "There were errors while validating the json data"
         
     return jsonify(output)
 
 #INSERT
 @app.route('/quotes', methods=['POST'])
-def postQuotes():
-    quoteData = request.get_json()
-    quote = Quotes(content=quoteData['content'], account_id=quoteData['account_id'])
+def insertQuote():
+    if(request.is_json):
+        quoteData = request.get_json()
+
+        #Validates sent JSON before insert
+        if validateJsonResponse(quoteInsertSchemaLocation, quoteData) == False:
+            quote = Quotes(content=quoteData['content'], account_id=quoteData['account_id'])
+            db.session.add(quote)
+            db.session.commit()
+            db.session.close()
+        
+        else: 
+            return "Json input validation failed!"
+
+    else:
+        insertQuoteXml()
+
+    return "Successfuly inserted quote!"
+
+def insertQuoteXml():
+    quoteData = request.get_data()
+
+    #Transforms data received into a non-flat xml file
+    info = ET.fromstring(quoteData)
+    tree = ET.ElementTree(info)
+
+    # if validateXmlResponse('xmlSchemas/noteInsertSchema.txt', info) == True:
+    #     print("Successfuly validated xml!")
+
+    #Iterates over xml and finds necessarry data belonging to tags
+    for item in tree.iter('quote'):
+        newQuoteContent = item.find('content').text
+        newQuoteAccountID = item.find('accountID').text
+    
+    quote = Quotes(content=newQuoteContent, account_id=newQuoteAccountID)
     db.session.add(quote)
     db.session.commit()
     db.session.close()
-    return jsonify(quoteData)
+
+    return "Successfully inserted quote!"
+
+#UPDATE
+@app.route('/quoteUpdate', methods=['POST'])
+def updateQuote():
+    if(request.is_json):
+        quoteData = request.get_json()
+    
+        # Validates sent JSON before update
+        if validateJsonResponse(quoteUpdateJsonSchemaLocation, quoteData) == False:
+            Quotes.query.filter_by(id=quoteData['id']).update(dict(content=quoteData['content']))
+            db.session.commit()
+            db.session.close()
+
+    else:
+        updateQuoteXml()
+
+    return "Successfuly updated quote!"
+
+#UPDATE WITH XML
+def updateQuoteXml():
+    quoteData = request.get_data()
+
+    #Transforms data received into a non-flat xml file
+    info = ET.fromstring(quoteData)
+    tree = ET.ElementTree(info)
+
+    #Iterates over xml and finds necessarry data belonging to tags
+    for item in tree.iter('quote'):
+        updatedQuoteID = item.find('id').text
+        updatedQuoteContent = item.find('content').text
+
+    # Validates sent JSON before update
+    Quotes.query.filter_by(id=updatedQuoteID).update(dict(content=updatedQuoteContent))
+    db.session.commit()
+    db.session.close()
+
+    return "Successfuly updated quote!"
+
+#DELETE
+@app.route('/quoteDelete', methods=['POST'])
+def deleteQuote():
+    if(request.is_json):
+        quoteData = request.get_json()
+
+        # Validates sent JSON and performs deletion
+        if validateJsonResponse(quoteDeleteJsonSchemaLocation, quoteData) == False:
+            quoteToDelete = Quotes.query.get(quoteData['id'])
+            db.session.delete(quoteToDelete)
+            db.session.commit()
+            db.session.close()
+        else:
+            return "There were errors while validating the json data!"
+
+    else:
+        deleteQuoteXml()
+
+    return "Successfuly deleted quote!"
+
+#DELETE BY XML POST
+def deleteQuoteXml():
+    updatedQuoteID = ''
+    quoteData = request.get_data()
+
+    #Transforms data received into a non-flat xml file
+    info = ET.fromstring(quoteData)
+    tree = ET.ElementTree(info)
+
+    #Iterates over xml and finds necessarry data belonging to tags
+    for item in tree.iter('quote'):
+        updatedQuoteID = item.find('id').text
+    
+    #Deletes note based on id specified in xml sent
+    quoteToDelete = Quotes.query.get(updatedQuoteID)
+    db.session.delete(quoteToDelete)
+    db.session.commit()
+    db.session.close()
+
+    return "Successfuly deleted quote!"
 
 #==========================================================================Notes Info Methods=======================================================================
 #Files locations
@@ -290,7 +408,7 @@ notesInsertJsonSchemaLocation = 'jsonSchemas/notesInsertSchema.json'
 notesUpdateJsonSchemaLocation = 'jsonSchemas/notesUpdateSchema.json'
 notesDeleteJsonSchemaLocation = 'jsonSchemas/notesDeleteSchema.json'
 
-notesReceivedJsonDataLocation = 'data/receivedNotes.json'
+notesReceivedJsonDataLocation = 'data/notesReceived.json'
 notesXmlFileLocation = 'xml/notes.xml'
 notesJsonDataConvertedFromXmlLocation = 'data/convertedReceivedNotes.json'
 
@@ -304,7 +422,7 @@ def getNotes():
     output = []
 
     if getUserID is None:
-        return "no id specified"
+        return "no user id specified"
     else:
         notes = Notes.query.filter_by(account_id=getUserID).all()
         for note in notes:
@@ -466,6 +584,9 @@ def deleteNotesXml():
 
 
 #========================================================================================Schedule Info Methods=====================================================================
+eventsGetSchemaLocation = 'jsonSchemas/eventsGetSchema.json'
+
+eventsReceivedJsonDataLocation = 'data/eventsReceived.json'
 
 #GET
 @app.route('/events', methods=['GET'])
@@ -474,7 +595,7 @@ def getEvents():
     output = []
 
     if getUserID is None:
-        return "no id specified"
+        return "no user id specified"
     else:
         events = Events.query.filter_by(account_id=getUserID).all()
         for event in events:
@@ -485,6 +606,13 @@ def getEvents():
             currEvent['title'] = event.title
             currEvent['account_id'] = event.account_id
             output.append(currEvent)
+
+        if validateJsonResponse(eventsGetSchemaLocation, output) == False:
+            #Save received json data to "received" file
+            saveJsonResponse(eventsReceivedJsonDataLocation, output)
+        
+        else:
+            return "There were errors while validating the json data"
 
     return jsonify(output)
 
@@ -518,7 +646,7 @@ def getSessions():
     output = []
 
     if getUserID is None:
-        return "no id specified"
+        return "no user id specified"
     else:
         sessions = Sessions.query.filter_by(account_id=getUserID).all()
         for session in sessions:

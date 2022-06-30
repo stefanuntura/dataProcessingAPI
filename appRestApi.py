@@ -65,7 +65,8 @@ def index():
     return render_template("index.html")
 
 #==========================================================================Account Info Methods=======================================================================
-
+accountsGetJsonSchemaLocation = 'jsonSchemas/accountsGetSchema.json'
+accountsReceivedJsonDataLocation = 'data/accountsReceived.json'
 #GET
 @app.route('/accounts', methods=['GET'])
 def getAccounts():
@@ -80,10 +81,19 @@ def getAccounts():
             currAccount['email'] = account.email
             output.append(currAccount)
         
-        #Create and write to json file
-        with open('data/accounts.json', 'w') as outfile:
-            json.dump(output, outfile)
-        outfile.close()
+        #Validate and save json response
+        if validateJsonResponse(accountsGetJsonSchemaLocation, output) == False:
+            #Save received json data to "received" file
+            saveJsonResponse(accountsReceivedJsonDataLocation, output)
+
+            # #Convert received json data to XML
+            # convertNotesJsonToXml(notesReceivedJsonDataLocation, notesXmlFileLocation, len(output))
+        
+            # #Convert XML data to a more structured JSON to "converted" file
+            # convertFromXMLToJSON(notesXmlFileLocation, notesJsonDataConvertedFromXmlLocation)
+        else:
+            return "There were errors while validating the json data"
+
     else:
         account = Account.query.filter_by(email=getAccountEmail).first()
         currAccount = {}
@@ -91,10 +101,18 @@ def getAccounts():
         currAccount['email'] = account.email
         output.append(currAccount)
 
-        #Create and write to json file
-        with open('data/account.json', 'w') as outfile:
-            json.dump(output, outfile)
-        outfile.close()
+        # #Validate and save json response
+        # if validateJsonResponse(notesGetJsonSchemaLocation, output) == False:
+        #     #Save received json data to "received" file
+        #     saveJsonResponse(notesReceivedJsonDataLocation, output)
+
+        #     #Convert received json data to XML
+        #     convertNotesJsonToXml(notesReceivedJsonDataLocation, notesXmlFileLocation, len(output))
+        
+        #     #Convert XML data to a more structured JSON to "converted" file
+        #     convertFromXMLToJSON(notesXmlFileLocation, notesJsonDataConvertedFromXmlLocation)
+        # else:
+        #     return "There were errors while validating the json data"
 
     return jsonify(output)
 
@@ -189,7 +207,7 @@ def getNotes():
             #Convert XML data to a more structured JSON to "converted" file
             convertFromXMLToJSON(notesXmlFileLocation, notesJsonDataConvertedFromXmlLocation)
         else:
-            return "There were errors while validating json the data!"
+            return "There were errors while validating the json data"
         
     return jsonify(output)
 

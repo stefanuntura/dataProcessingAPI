@@ -1,24 +1,21 @@
 {
-    "type": "array",
-    "items": {
-        "type": "object",
-        "properties": {
-            "date": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 50
-            },
-            "time": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 50
-            },
-            "duration": {
-                "type": "number"
-            },
-            "account_id": {
-                "type": "number"
-            }
+    "type": "object",
+    "properties": {
+        "date": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+        },
+        "time": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+        },
+        "duration": {
+            "type": "number"
+        },
+        "account_id": {
+            "type": "number"
         }
     },
     "required": [

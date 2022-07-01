@@ -20,7 +20,7 @@
 
   `pip install -r requirements.txt`
 
-- 4.1 In case step 4 fails, the following dependencies:
+- 4.1 In case step 4 fails, install the following dependencies manually by typing the following commands one at the time:
 
   `pip install json`
   `pip install jsonschema`

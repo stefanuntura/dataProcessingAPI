@@ -234,7 +234,7 @@ def updateAccountXml():
 
 
 #DELETE
-@app.route('/accountsDelete', methods=['POST'])
+@app.route('/accountDelete', methods=['POST'])
 def deleteAccount():
     if(request.is_json):
         accountData = request.get_json()
@@ -526,7 +526,7 @@ def insertNoteXml():
 
 #=================================================================================================================================================================================
 #UPDATE
-@app.route('/notesUpdate', methods=['POST'])
+@app.route('/noteUpdate', methods=['POST'])
 def updateNotes():
     if(request.is_json):
         noteData = request.get_json()
@@ -565,7 +565,7 @@ def updateNotesXml():
 
 #=================================================================================================================================================================================
 #DELETE
-@app.route('/notesDelete', methods=['POST'])
+@app.route('/noteDelete', methods=['POST'])
 def deleteNotes():
     if(request.is_json):
         noteData = request.get_json()

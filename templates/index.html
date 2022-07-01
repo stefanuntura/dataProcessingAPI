@@ -8,16 +8,40 @@
     <h1><center>FokusApp Rest Api</center></h1>
     <h3>Options:</h3>
     <ul>
-      <li>/accounts - <b>GET</b> or <b>Posts</b> <i>Accounts</i> data from database</li>
-      <li>/quotes - <b>GET</b> or <b>Posts</b> <i>Quotes</i> data from database</li>
-      <li>/notes - <b>GET</b> or <b>Posts</b> <i>Notes</i> data from database. <b>Insert</b> methodusing JSON is available via this link</li>
-      <li>/notesXml - <b>GET</b> or <b>Posts</b> <i>Notes</i> data from database. <b>Insert</b> methodusing XML is available via this link</li>
-      <li>/notes - <b>GET</b> or <b>Posts</b> <i>Notes</i> data from database. <b>Insert</b> methodusing JSON is available via this link</li>
-      <li>/notesDelete - Delete using <b>GET</b> or <b>POST</b>request with JSON data</li>
-      <li>/notesDelete - Delete using <b>GET</b> or <b>POST</b>request with XML data</li>
-      <li>/notesUpdate - Update note entry using <b>POST</b>request with JSON data</li>
-      <li>/notesUpdateXml - Update note entry using <b>POST</b>request with Xml data</li>
-      <li>/events - <b>GET</b> or <b>Posts</b> <i>Events</i> data from database. <b>Delete</b> method is available using Post.</li>
+      <li>
+        <h4>Accounts</h4>
+        <ol>/accounts - <b>GET</b> <i>Accounts</i> data from database.</ol>
+        <ol>/accounts - <b>POST</b> <i>Accounts</i> data into database with either XML or JSON..</ol>
+        <ol>/accountDelete - Delete account entry using <b>POST</b> request with JSON or XML data</li></ol>
+        <ol>/accountUpdate - Update account entry using <b>POST</b> request with JSON or XML data</li></ol>
+      </li>
+      <li>
+        <h4>Quotes</h4>
+        <ol>/quotes - <b>GET</b> <i>Quotes</i> data from database</ol>
+        <ol>/quotes - <b>Post</b> <i>Quotes</i> data into database with either XML or JSON. </ol>
+        <ol>/quoteDelete - Delete quote entry using <b>POST</b>request with JSON or XML data</ol>
+        <ol>/quoteUpdate - Update quote entry using <b>POST</b> request with JSON or XML data</ol>
+      <li>
+        <h4>Notes</h4>
+        <ol>/notes - <b>GET</b> <i>Notes</i> data from database.</ol>
+        <ol>/notes - <b>Post</b> <i>Notes</i> data into database with either XML or JSON. </ol>
+        <ol>/noteDelete - Delete note entry using <b>POST</b>request with JSON or XML data</ol>
+        <ol>/noteUpdate - Update note entry using <b>POST</b> request with JSON or XML data</ol>
+      </li>
+      <li>
+        <h4>Events</h4>
+        <ol>/events - <b>GET</b> <i>Events</i> data from database.</ol>
+        <ol>/events - <b>Post</b> <i>Events</i> data into database with either XML or JSON. </ol>
+        <ol>/eventDelete - Delete event entry using <b>POST</b>request with JSON or XML data</ol>
+        <ol>/eventUpdate - Update event entry using <b>POST</b> request with JSON or XML data</ol>
+      </li>
+      <li>
+        <h4>Sessions</h4>
+        <ol>/sessions - <b>GET</b> <i>Sessions</i> data from database.</ol>
+        <ol>/sessions - <b>Post</b> <i>Sessions</i> data into database with either XML or JSON. </ol>
+        <ol>/sessionDelete - Delete session entry using <b>POST</b>request with JSON or XML data</ol>
+        <ol>/sessionUpdate - Update session entry using <b>POST</b> request with JSON or XML data</ol>
+      </li>
     </ul>
   </body>
 </html>

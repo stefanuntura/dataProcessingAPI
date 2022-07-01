@@ -38,4 +38,4 @@
   This will start the API on a local server with the address
   `127.0.0.1:5000`
 
-- 6 Congratulations! You are now running the application. Open the previous address in your browser of choice.
+- 6 Congratulations! You are now running the application. Open the previous address in your browser of choice and send requests via the endpoints mentioned in index.html (the page loaded when opening the address above)

@@ -125,29 +125,61 @@ def getAccounts():
 
 #=================================================================================================================================================================================
 #INSERT
+#Checks if account already exists
+#If entry already exists, returns string "Account already exists!"
+#If entry does not exist, inserts sent entry in database
 @app.route('/accounts', methods=['POST'])
 def insertAccount():
     if(request.is_json):
         accountData = request.get_json()
 
-        #Validates sent JSON before insert
+        #Validates sent JSON
         if validateJsonResponse(accountInsertSchemaLocation, accountData) == False:
-            account = Account(email=accountData['email'])
-            db.session.add(account)
-            db.session.commit()
-            db.session.close()
+            exists = bool(db.session.query(Account).filter_by(email=accountData['email']).first())
 
+            if(exists):
+                return "Account already exists!"
+            else:
+                insertAccountJson(accountData)
+                return "Successfully inserted account using json!"
         else: 
             return "Json input validation failed!"
-
     else:
-        insertAccountXml()
+        accountData = request.get_data()
 
-    return "Successfuly inserted account!"
+        #Transforms data received into a non-flat xml file
+        info = ET.fromstring(accountData)
+        tree = ET.ElementTree(info)
 
-def insertAccountXml():
-    accountData = request.get_data()
+        # if validateXmlResponse('xmlSchemas/noteInsertSchema.txt', info) == True:
+        #     print("Successfuly validated xml!")
 
+        #Iterates over xml and finds necessarry data belonging to tags
+        for item in tree.iter('account'):
+            accountEmail = item.find('email').text
+        
+            exists = bool(db.session.query(Account).filter_by(email=accountEmail).first())
+
+            if(exists):
+                return "Account already exists!"
+            else:
+                insertAccountXml(accountData)
+                return "Successfuly inserted account using xml!"
+
+    return jsonify(accountData)
+
+def insertAccountJson(accountData):
+    #Validates sent JSON before insert
+    if validateJsonResponse(accountInsertSchemaLocation, accountData) == False:
+        account = Account(email=accountData['email'])
+        db.session.add(account)
+        db.session.commit()
+        db.session.close()
+
+    else: 
+        return "Json input validation failed!"
+
+def insertAccountXml(accountData):
     #Transforms data received into a non-flat xml file
     info = ET.fromstring(accountData)
     tree = ET.ElementTree(info)
@@ -163,8 +195,6 @@ def insertAccountXml():
     db.session.add(account)
     db.session.commit()
     db.session.close()
-
-    return "Successfully added note!"
 
 #UPDATE
 @app.route('/accountUpdate', methods=['POST'])

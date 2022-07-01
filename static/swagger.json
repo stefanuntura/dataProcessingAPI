@@ -1,0 +1,71 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "Stix-Database-API-Assignment"
+    },
+    "servers": [
+        {
+            "url": "/"
+        }
+    ],
+    "paths": {
+        "/request": {
+          "get": {
+            "tags": [
+              "Notes Request"
+            ],
+            "summary": "Returns Notes",
+            "responses": {
+              "200": {
+                "description": "OK",
+                "schema": {
+                  "$ref": "#/../jsonSchemas/notesGetSchema.json"
+                }
+              }
+            }
+          }
+        }
+      },
+    "components": {
+        "schemas": {
+            "id": {
+                "properties": {
+                    "uuid": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Account": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "format": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    }
+                }
+            },
+            "Notes": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "format": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "number"
+                    }
+                }
+            }
+        }
+    }
+}

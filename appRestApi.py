@@ -21,6 +21,30 @@ app.config['DATABASE_URL'] = uri
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
 db = SQLAlchemy(app)
 
+#====================================================================swagger specific=======================================================================#
+# generator = Generator.of(SwaggerVersion.VERSION_THREE)
+
+# SWAGGER_URL = '/swagger'
+# API_URL = '/static/swagger.json'
+# SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
+#     SWAGGER_URL,
+#     API_URL,
+#     config={
+#         'app_name': "Stix-Database-API-Assignment"
+#     }
+# )
+
+# @generator.security(SecurityType.BEARER_AUTH)
+# @generator.response(status_code=200, schema={'id': 10, 'name': 'test_object'})
+# @generator.request_body({'id': 10, 'name': 'test_object'})
+# @SWAGGERUI_BLUEPRINT.route('/objects/<int:object_id>', methods=['PUT'])
+# def update_object(object_id):
+#     return jsonify({'id': 1, 'name': 'test_object_name'}), 201
+
+# swagger_destination_path = '/static/swagger.yaml'
+# app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
+# #generator.generate_swagger(app, destination_path=swagger_destination_path)
+
 #==========================================================================Models===========================================================================
 
 class Account(db.Model):

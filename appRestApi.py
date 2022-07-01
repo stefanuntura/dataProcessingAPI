@@ -65,11 +65,11 @@ def index():
 
 #===========================================================================Account info methods===================================================================================
 #Files locations
-accountsGetJsonSchemaLocation = 'jsonSchemas/accountsGetSchema.json'
-accountGetJsonSchemaLocation = 'jsonSchemas/accountGetSchema.json'
-accountInsertSchemaLocation = 'jsonSchemas/accountInsertSchema.json'
-accountDeleteSchemaLocation = 'jsonSchemas/accountDeleteSchema.json'
-accountUpdateSchemaLocation = 'jsonSchemas/accountUpdateSchema.json'
+accountsGetJsonSchemaLocation = 'jsonSchemas/Account/accountsGetSchema.json'
+accountGetJsonSchemaLocation = 'jsonSchemas/Account/accountGetSchema.json'
+accountInsertSchemaLocation = 'jsonSchemas/Account/accountInsertSchema.json'
+accountDeleteSchemaLocation = 'jsonSchemas/Account/accountDeleteSchema.json'
+accountUpdateSchemaLocation = 'jsonSchemas/Account/accountUpdateSchema.json'
 
 accountsReceivedJsonDataLocation = 'data/accountsReceived.json'
 accountReceivedJsonDataLocation = 'data/accountReceived.json'
@@ -246,10 +246,10 @@ def deleteAccountXml():
     return "Successfuly deleted account!"
 
 #==========================================================================Quotes Info Methods=======================================================================
-quoteGetSchemaLocation = 'jsonSchemas/quoteGetSchema.json'
-quoteInsertSchemaLocation = 'jsonSchemas/quoteInsertSchema.json'
-quoteUpdateJsonSchemaLocation = 'jsonSchemas/quoteUpdateSchema.json'
-quoteDeleteJsonSchemaLocation = 'jsonSchemas/quoteDeleteSchema.json'
+quoteGetSchemaLocation = 'jsonSchemas/Quote/quoteGetSchema.json'
+quoteInsertSchemaLocation = 'jsonSchemas/Quote/quoteInsertSchema.json'
+quoteUpdateJsonSchemaLocation = 'jsonSchemas/Quote/quoteUpdateSchema.json'
+quoteDeleteJsonSchemaLocation = 'jsonSchemas/Quote/quoteDeleteSchema.json'
 
 quoteReceivedJsonDataLocation = 'data/quoteReceived.json'
 
@@ -401,10 +401,10 @@ def deleteQuoteXml():
 
 #==========================================================================Notes Info Methods=======================================================================
 #Files locations
-notesGetJsonSchemaLocation = 'jsonSchemas/notesGetSchema.json'
-notesInsertJsonSchemaLocation = 'jsonSchemas/notesInsertSchema.json'
-notesUpdateJsonSchemaLocation = 'jsonSchemas/notesUpdateSchema.json'
-notesDeleteJsonSchemaLocation = 'jsonSchemas/notesDeleteSchema.json'
+notesGetJsonSchemaLocation = 'jsonSchemas/Note/notesGetSchema.json'
+notesInsertJsonSchemaLocation = 'jsonSchemas/Note/notesInsertSchema.json'
+notesUpdateJsonSchemaLocation = 'jsonSchemas/Note/notesUpdateSchema.json'
+notesDeleteJsonSchemaLocation = 'jsonSchemas/Note/notesDeleteSchema.json'
 
 notesReceivedJsonDataLocation = 'data/notesReceived.json'
 notesXmlFileLocation = 'xml/notes.xml'
@@ -577,10 +577,10 @@ def deleteNotesXml():
 
 
 #========================================================================================Schedule Info Methods=====================================================================
-eventsGetSchemaLocation = 'jsonSchemas/eventsGetSchema.json'
-eventInsertSchemaLocation = 'jsonSchemas/eventInsertSchema.json'
-eventDeleteJsonSchemaLocation = 'jsonSchemas/eventDeleteSchema.json'
-eventUpdateSchemaLocation = 'jsonSchemas/eventUpdateSchema.json'
+eventsGetSchemaLocation = 'jsonSchemas/Event/eventsGetSchema.json'
+eventInsertSchemaLocation = 'jsonSchemas/Event/eventInsertSchema.json'
+eventDeleteJsonSchemaLocation = 'jsonSchemas/Event/eventDeleteSchema.json'
+eventUpdateSchemaLocation = 'jsonSchemas/Event/eventUpdateSchema.json'
 
 eventsReceivedJsonDataLocation = 'data/eventsReceived.json'
 
@@ -744,10 +744,10 @@ def deleteEventXml():
     return "Successfuly deleted note!"
 
 #=========================================================================Sessions Info Methods=====================================================================
-sessionsGetSchemaLocation = 'jsonSchemas/sessionsGetSchema.json'
-sessionInsertSchemaLocation = 'jsonSchemas/sessionInsertSchema.json'
-sessionUpdateSchemaLocation = 'jsonSchemas/sessionUpdateSchema.json'
-sessionDeleteJsonSchemaLocation = 'jsonSchemas/sessionDeleteSchema.json'
+sessionsGetSchemaLocation = 'jsonSchemas/Session/sessionsGetSchema.json'
+sessionInsertSchemaLocation = 'jsonSchemas/Session/sessionInsertSchema.json'
+sessionUpdateSchemaLocation = 'jsonSchemas/Session/sessionUpdateSchema.json'
+sessionDeleteJsonSchemaLocation = 'jsonSchemas/Session/sessionDeleteSchema.json'
 
 sessionsReceivedJsonDataLocation = 'data/sessionsReceived.json'
 

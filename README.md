@@ -16,7 +16,11 @@
 
   `python get-pip.py`
 
-- 4.1 Install the following dependencies:
+- 4 Install the dependencies from requirements.txt by running
+
+  `pip install -r requirements.txt`
+
+- 4.1 In case step 4 fails, the following dependencies:
 
   `pip install json`
   `pip install jsonschema`

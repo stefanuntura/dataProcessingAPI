@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from flask import request, Blueprint
 from Modules.Notes.Config import notesInsertJsonSchemaLocation
-from Modules.Util import validateJsonResponse
+from Modules.Util import validateJsonResponse, validateXmlResponse
 
 insertNotes = Blueprint('insertNotes', __name__)
 
@@ -39,8 +39,8 @@ def insertNoteXml():
     tree = ET.ElementTree(info)
     tree.write('xml/noteInsertXml.xml')
 
-    # if validateXmlResponse('xmlSchemas/noteInsertSchema.txt', info) == True:
-    #     print("Successfuly validated xml!")
+    if validateXmlResponse('xmlSchemas/noteInsertSchema.txt', 'xml/noteInsertXml.xml') == True:
+        print("Successfuly validated xml!")
 
     # Iterates over xml and finds necessarry data belonging to tags
     for item in tree.iter('note'):

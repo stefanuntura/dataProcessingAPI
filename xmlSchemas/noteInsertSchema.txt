@@ -1,12 +1,12 @@
-<xsd:schema version="1.1" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <xsd:element name="note">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element type="xsd:string" name="subject"/>
-        <xsd:element type="xsd:string" name="title"/>
-        <xsd:element type="xsd:string" name="content"/>
-        <xsd:element type="xsd:byte" name="accountID"/>
-      </xsd:sequence>
-    </xsd:complexType>
-  </xsd:element>
-</xsd:schema>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="note">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="subject" type="xs:string" />
+        <xs:element name="title" type="xs:string" />
+        <xs:element name="content" type="xs:string" />
+        <xs:element name="accountID" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

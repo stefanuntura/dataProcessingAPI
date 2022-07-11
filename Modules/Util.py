@@ -31,20 +31,16 @@ def validateJsonResponse(schemaLocation, dataReceived):
 
 # Validate XML reponse using XSD
 def validateXmlResponse(schemaLocation, xmlToValidate):
-    # Get schema as string
-    schemaFile = open(schemaLocation, 'r')
-    fileContent = schemaFile.read()
-    schemaFile.close()
+    #Create schema from string
+    xmlschema_doc = etree.parse(schemaLocation)
+    xmlschema = etree.XMLSchema(xmlschema_doc)
 
-    # Create schema from string
-    xmlschema_doc = etree.fromstring(fileContent)
-    xmlschema = etree.XMLSchema(file=schemaLocation)
-
-    xmlschema.validate(xmlschema_doc)
+    xml_doc = etree.parse(xmlToValidate)
+    result = xmlschema.validate(xml_doc)
 
     print("Errors while validating xml:", xmlschema.error_log)
-
-    return xmlschema.validate(xmlschema_doc)
+    
+    return result
 
 
 # Save JSON response to file

@@ -531,8 +531,10 @@ def insertNoteXml():
     tree = ET.ElementTree(info)
     tree.write('xml/noteInsertXml.xml')
 
-    # if validateXmlResponse('xmlSchemas/noteInsertSchema.txt', info) == True:
-    #     print("Successfuly validated xml!")
+    if validateXmlResponse('xmlSchemas/noteInsertSchema.txt', 'xml/noteInsertXml.xml') == True:
+        print("Successfuly validated xml!")
+    else:
+        print("Failed to validate xml!")
 
     #Iterates over xml and finds necessarry data belonging to tags
     for item in tree.iter('note'):
@@ -991,20 +993,16 @@ def validateJsonResponse(schemaLocation, dataReceived):
 
 # Validate XML reponse using XSD
 def validateXmlResponse(schemaLocation, xmlToValidate):
-    #Get schema as string
-    schemaFile = open(schemaLocation, 'r')
-    fileContent = schemaFile.read()
-    schemaFile.close()
-    
     #Create schema from string
-    xmlschema_doc = etree.fromstring(fileContent)
-    xmlschema = etree.XMLSchema(file=schemaLocation)
+    xmlschema_doc = etree.parse(schemaLocation)
+    xmlschema = etree.XMLSchema(xmlschema_doc)
 
-    xmlschema.validate(xmlschema_doc)
+    xml_doc = etree.parse(xmlToValidate)
+    result = xmlschema.validate(xml_doc)
 
     print("Errors while validating xml:", xmlschema.error_log)
     
-    return xmlschema.validate(xmlschema_doc)
+    return result
 
 # Save JSON response to file
 

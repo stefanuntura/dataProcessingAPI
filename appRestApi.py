@@ -101,51 +101,54 @@ accountReceivedJsonDataLocation = 'data/accountReceived.json'
 #GET
 @app.route('/accounts', methods=['GET'])
 def getAccounts():
-    getAccountEmail = request.args.get("email")
-    output = []
+    if(request.is_json):
+        getAccountEmail = request.args.get("email")
+        output = []
 
-    if getAccountEmail is None:
-        allAccounts = Account.query.all()
-        for account in allAccounts:
+        if getAccountEmail is None:
+            allAccounts = Account.query.all()
+            for account in allAccounts:
+                currAccount = {}
+                currAccount['id'] = account.id
+                currAccount['email'] = account.email
+                output.append(currAccount)
+        
+            #Validate and save json response
+            if validateJsonResponse(accountsGetJsonSchemaLocation, output) == False:
+                #Save received json data to "received" file
+                saveJsonResponse(accountsReceivedJsonDataLocation, output)
+
+                # #Convert received json data to XML
+                # convertNotesJsonToXml(notesReceivedJsonDataLocation, notesXmlFileLocation, len(output))
+        
+                # #Convert XML data to a more structured JSON to "converted" file
+                # convertFromXMLToJSON(notesXmlFileLocation, notesJsonDataConvertedFromXmlLocation)
+            else:
+                return "There were errors while validating the json data"
+
+        else:
+            account = Account.query.filter_by(email=getAccountEmail).first()
             currAccount = {}
             currAccount['id'] = account.id
             currAccount['email'] = account.email
             output.append(currAccount)
+
+            #Validate and save json response
+            if validateJsonResponse(accountGetJsonSchemaLocation, output) == False:
+                #Save received json data to "received" file
+                saveJsonResponse(accountReceivedJsonDataLocation, output)
+
+            #     #Convert received json data to XML
+            #     convertNotesJsonToXml(notesReceivedJsonDataLocation, notesXmlFileLocation, len(output))
         
-        #Validate and save json response
-        if validateJsonResponse(accountsGetJsonSchemaLocation, output) == False:
-            #Save received json data to "received" file
-            saveJsonResponse(accountsReceivedJsonDataLocation, output)
+            #     #Convert XML data to a more structured JSON to "converted" file
+            #     convertFromXMLToJSON(notesXmlFileLocation, notesJsonDataConvertedFromXmlLocation)
+            # else:
+            #     return "There were errors while validating the json data"
 
-            # #Convert received json data to XML
-            # convertNotesJsonToXml(notesReceivedJsonDataLocation, notesXmlFileLocation, len(output))
-        
-            # #Convert XML data to a more structured JSON to "converted" file
-            # convertFromXMLToJSON(notesXmlFileLocation, notesJsonDataConvertedFromXmlLocation)
-        else:
-            return "There were errors while validating the json data"
-
-    else:
-        account = Account.query.filter_by(email=getAccountEmail).first()
-        currAccount = {}
-        currAccount['id'] = account.id
-        currAccount['email'] = account.email
-        output.append(currAccount)
-
-        #Validate and save json response
-        if validateJsonResponse(accountGetJsonSchemaLocation, output) == False:
-            #Save received json data to "received" file
-            saveJsonResponse(accountReceivedJsonDataLocation, output)
-
-        #     #Convert received json data to XML
-        #     convertNotesJsonToXml(notesReceivedJsonDataLocation, notesXmlFileLocation, len(output))
-        
-        #     #Convert XML data to a more structured JSON to "converted" file
-        #     convertFromXMLToJSON(notesXmlFileLocation, notesJsonDataConvertedFromXmlLocation)
-        # else:
-        #     return "There were errors while validating the json data"
-
-    return jsonify(output)
+        return jsonify(output)
+    elif(request.is_xml):
+        return 0
 
 #=================================================================================================================================================================================
 #INSERT

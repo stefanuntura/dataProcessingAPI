@@ -11,3 +11,4 @@ Werkzeug==0.16.0
 json5==0.9.5
 jsonschema==3.2.0
 psycopg2==2.8.6
+flask_restful==0.3.8

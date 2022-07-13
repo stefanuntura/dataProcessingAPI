@@ -7,9 +7,11 @@ import xml.etree.ElementTree as ET
 from lxml import etree
 from flask import Flask, render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
+import flask_restful
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
+api = restful.Api(app)
 
 #uri = "postgres://postgres:Admin123@localhost:5432/fokusdatabase"
 uri = "postgresql+psycopg2://jcrmzxcrgqnria:9e5ddac9f8d1d2b5cd2fc9621d3748ae4f18d4ae9a14c695a8282ef93c446709@ec2-34-255-134-200.eu-west-1.compute.amazonaws.com:5432/ddj8mm4n4oaccb"
@@ -147,8 +149,14 @@ def getAccounts():
             #     return "There were errors while validating the json data"
 
         return jsonify(output)
-    elif(request.is_xml):
-        return 0
+    # elif(request.is_xml):
+    #     return 0
+
+@api.representation('aplication/xml')
+def output_xml(data, code, headers=None):
+	resp = restful.make_response(dumps({'response' : data}), code)
+	resp.headers.extend(headers or {})
+	return resp
 
 #=================================================================================================================================================================================
 #INSERT

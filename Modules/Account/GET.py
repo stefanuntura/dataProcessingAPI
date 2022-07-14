@@ -1,12 +1,16 @@
-from flask import jsonify, request
+from flask import jsonify, request, Blueprint
 from Modules.Account.Config import accountsGetJsonSchemaLocation, accountsReceivedJsonDataLocation, \
     accountGetJsonSchemaLocation, accountReceivedJsonDataLocation
 from Modules.Util import validateJsonResponse, saveJsonResponse
-from appRestApi import Account
 
 
-#GET
+getAccount = Blueprint('getAccount', __name__)
+
+
+# GET
+@getAccount.route('/accounts', methods=['GET'])
 def getAccounts():
+    from appRestApi import Account
     getAccountEmail = request.args.get("email")
     output = []
 

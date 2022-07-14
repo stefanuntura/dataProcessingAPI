@@ -1,13 +1,15 @@
 import xml.etree.ElementTree as ET
-from flask import request
+from flask import request, Blueprint
 from Modules.Sessions.Config import sessionInsertSchemaLocation
 from Modules.Util import validateJsonResponse
-from appRestApi import app, db, Sessions
+
+insertSessions = Blueprint('insertSessions', __name__)
 
 
 # INSERT
-@app.route('/sessions', methods=['POST'])
+@insertSessions.route('/sessions', methods=['POST'])
 def insertSession():
+    from appRestApi import db, Sessions
     if (request.is_json):
         sessionData = request.get_json()
 
@@ -29,6 +31,7 @@ def insertSession():
 
 # INSERT WITH XML
 def insertSessionXml():
+    from appRestApi import db, Sessions
     sessionData = request.get_data()
 
     # Transforms data received into a non-flat xml file

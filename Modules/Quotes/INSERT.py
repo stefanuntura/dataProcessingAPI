@@ -1,13 +1,15 @@
 import xml.etree.ElementTree as ET
-from flask import Flask, render_template, jsonify, request
+from flask import request, Blueprint
 from Modules.Quotes.Config import quoteInsertSchemaLocation
-from appRestApi import app, db, Quotes
 from Modules.Util import validateJsonResponse
+
+insertQuotes = Blueprint('insertQuotes', __name__)
 
 
 # INSERT
-@app.route('/quotes', methods=['POST'])
+@insertQuotes.route('/quotes', methods=['POST'])
 def insertQuote():
+    from appRestApi import db, Quotes
     if (request.is_json):
         quoteData = request.get_json()
 
@@ -28,6 +30,7 @@ def insertQuote():
 
 
 def insertQuoteXml():
+    from appRestApi import db, Quotes
     quoteData = request.get_data()
 
     # Transforms data received into a non-flat xml file

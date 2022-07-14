@@ -1,12 +1,13 @@
-from flask import Flask, render_template, jsonify, request
-
-# GET
+from flask import jsonify, request, Blueprint
 from Modules.Quotes.Config import quoteGetSchemaLocation, quoteReceivedJsonDataLocation
 from Modules.Util import validateJsonResponse, saveJsonResponse
-from appRestApi import Quotes, app
 
-@app.route('/quotes', methods=['GET'])
+getQuote = Blueprint('getQuote', __name__)
+
+# GET
+@getQuote.route('/quotes', methods=['GET'])
 def getQuotes():
+    from appRestApi import Quotes
     getUserID = request.args.get("id")
     output = []
 

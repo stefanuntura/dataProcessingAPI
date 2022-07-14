@@ -1,12 +1,14 @@
-from flask import jsonify, request
+from flask import jsonify, request, Blueprint
 from Modules.Events.Config import eventsGetSchemaLocation, eventsReceivedJsonDataLocation
 from Modules.Util import validateJsonResponse, saveJsonResponse
-from appRestApi import app, db, Events
+
+getEvent = Blueprint('getEvent', __name__)
 
 
 # GET
-@app.route('/events', methods=['GET'])
+@getEvent.route('/events', methods=['GET'])
 def getEvents():
+    from appRestApi import Events
     getUserID = request.args.get("id")
     output = []
 

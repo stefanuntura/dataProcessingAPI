@@ -1,12 +1,14 @@
-from flask import jsonify, request
+from flask import jsonify, request, Blueprint
 from Modules.Sessions.Config import sessionsGetSchemaLocation, sessionsReceivedJsonDataLocation
 from Modules.Util import validateJsonResponse, saveJsonResponse
-from appRestApi import app, Sessions
+
+getSession = Blueprint('getSession', __name__)
 
 
 # GET
-@app.route('/sessions', methods=['GET'])
+@getSession.route('/sessions', methods=['GET'])
 def getSessions():
+    from appRestApi import Sessions
     getUserID = request.args.get("id")
     output = []
 

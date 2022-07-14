@@ -1,12 +1,14 @@
 import xml.etree.ElementTree as ET
-from flask import request
+from flask import request, Blueprint
 from Modules.Events.Config import eventInsertSchemaLocation
 from Modules.Util import validateJsonResponse
-from appRestApi import app, db, Events
+
+insertEvents = Blueprint('insertEvents', __name__)
 
 #INSERT
-@app.route('/events', methods=['POST'])
+@insertEvents.route('/events', methods=['POST'])
 def insertEvent():
+    from appRestApi import db, Events
     if (request.is_json):
         eventData = request.get_json()
 
@@ -28,6 +30,7 @@ def insertEvent():
 
 # INSERT WITH XML
 def insertEventXml():
+    from appRestApi import db, Events
     eventData = request.get_data()
 
     # Transforms data received into a non-flat xml file

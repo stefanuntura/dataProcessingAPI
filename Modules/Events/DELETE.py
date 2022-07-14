@@ -1,13 +1,15 @@
 import xml.etree.ElementTree as ET
-from flask import request
+from flask import request, Blueprint
 from Modules.Events.Config import eventDeleteJsonSchemaLocation
 from Modules.Util import validateJsonResponse
-from appRestApi import app, db, Events
+
+deleteEvents = Blueprint('deleteEvents', __name__)
 
 
 # DELETE
-@app.route('/eventDelete', methods=['POST'])
+@deleteEvents.route('/eventDelete', methods=['POST'])
 def deleteEvent():
+    from appRestApi import db, Events
     if (request.is_json):
         eventData = request.get_json()
 
@@ -28,6 +30,7 @@ def deleteEvent():
 
 # DELETE BY XML POST
 def deleteEventXml():
+    from appRestApi import db, Events
     eventToDeleteID = ''
     eventData = request.get_data()
 

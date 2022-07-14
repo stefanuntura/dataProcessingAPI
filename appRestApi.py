@@ -6,13 +6,27 @@ import xml.etree.ElementTree as ET
 from lxml import etree
 from flask import Flask, render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
-
 import Modules.Util
-from Modules.Account import GET, INSERT, UPDATE, DELETE
-from Modules.Events import GET, INSERT, UPDATE, DELETE
-from Modules.Notes import GET, INSERT, UPDATE, DELETE
-from Modules.Quotes import GET, INSERT, UPDATE, DELETE
-from Modules.Sessions import GET, INSERT, UPDATE, DELETE
+from Modules.Account.GET import getAccount
+from Modules.Account.INSERT import insertAccounts
+from Modules.Account.UPDATE import updateAccounts
+from Modules.Account.DELETE import deleteAccounts
+from Modules.Events.GET import getEvent
+from Modules.Events.INSERT import insertEvents
+from Modules.Events.UPDATE import updateEvents
+from Modules.Events.DELETE import deleteEvents
+from Modules.Notes.GET import getNote
+from Modules.Notes.INSERT import insertNotes
+from Modules.Notes.UPDATE import updateNote
+from Modules.Notes.DELETE import deleteNote
+from Modules.Quotes.GET import getQuote
+from Modules.Quotes.INSERT import insertQuotes
+from Modules.Quotes.UPDATE import updateQuotes
+from Modules.Quotes.DELETE import deleteQuotes
+from Modules.Sessions.GET import getSession
+from Modules.Sessions.INSERT import insertSessions
+from Modules.Sessions.UPDATE import updateSessions
+from Modules.Sessions.DELETE import deleteSessions
 
 app = Flask(__name__)
 # Set to false before turning in
@@ -55,6 +69,7 @@ db = SQLAlchemy(app)
 
 # ==========================================================================Models===========================================================================
 
+
 class Account(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True)
@@ -69,13 +84,13 @@ class Notes(db.Model):
     subject = db.Column(db.String(255), unique=False)
     title = db.Column(db.String(120), unique=True)
     content = db.Column(db.String(500), unique=False)
-    account_id = db.Column(db.Integer, db.ForeignKey('id'))
+    account_id = db.Column(db.Integer, db.ForeignKey('account.id'))
 
 
 class Quotes(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(255), unique=False)
-    account_id = db.Column(db.Integer, db.ForeignKey('id'))
+    account_id = db.Column(db.Integer, db.ForeignKey('account.id'))
 
 
 class Events(db.Model):
@@ -83,7 +98,7 @@ class Events(db.Model):
     date = db.Column(db.String(50), unique=False)
     time = db.Column(db.String(50), unique=False)
     title = db.Column(db.String(50), unique=False)
-    account_id = db.Column(db.Integer, db.ForeignKey('id'))
+    account_id = db.Column(db.Integer, db.ForeignKey('account.id'))
 
 
 class Sessions(db.Model):
@@ -91,7 +106,7 @@ class Sessions(db.Model):
     date = db.Column(db.String(50), unique=False)
     time = db.Column(db.String(50), unique=False)
     duration = db.Column(db.Integer, unique=False)
-    account_id = db.Column(db.Integer, db.ForeignKey('id'))
+    account_id = db.Column(db.Integer, db.ForeignKey('account.id'))
 
 
 # =========================================================================================Api Home Page============================================================================
@@ -101,135 +116,26 @@ def index():
     return render_template("index.html")
 
 
-# ===========================================================================Account methods===================================================================================
-
-# GET
-@app.route('/accounts', methods=['GET'])
-def getAccount():
-    return GET.getAccounts()
-
-
-# INSERT
-@app.route('/accounts', methods=['POST'])
-def insertAccount():
-    return INSERT.insertAccount()
-
-
-# UPDATE
-@app.route('/accountUpdate', methods=['POST'])
-def updateAccount():
-    return UPDATE.updateAccount()
-
-
-# DELETE
-@app.route('/accountDelete', methods=['POST'])
-def deleteAccount():
-    return DELETE.deleteAccount()
-
-
-# ===========================================================================Event methods===================================================================================
-
-# GET
-@app.route('/events', methods=['GET'])
-def getEvent():
-    return GET.getEvents()
-
-
-# INSERT
-@app.route('/events', methods=['POST'])
-def insertEvent():
-    return INSERT.insertEvent()
-
-
-# UPDATE
-@app.route('/eventUpdate', methods=['POST'])
-def updateEvent():
-    return UPDATE.updateEvent()
-
-
-# DELETE
-@app.route('/eventDelete', methods=['POST'])
-def deleteEvent():
-    return DELETE.deleteEvent()
-
-
-# ===========================================================================Notes methods===================================================================================
-# GET
-@app.route('/notes', methods=['GET'])
-def getNote():
-    return GET.getNotes()
-
-
-# INSERT
-@app.route('/notes', methods=['POST'])
-def insertNote():
-    return INSERT.insertNote()
-
-
-# UPDATE
-@app.route('/noteUpdate', methods=['POST'])
-def updateNote():
-    return UPDATE.updateNotes()
-
-
-# DELETE
-@app.route('/noteDelete', methods=['POST'])
-def deleteNote():
-    return DELETE.deleteNotes()
-
-
-# ===========================================================================Quotes methods===================================================================================
-# GET
-@app.route('/quotes', methods=['GET'])
-def getQuotes():
-    return GET.getQuotes()
-
-
-# INSERT
-@app.route('/quotes', methods=['POST'])
-def insertQuotes():
-    return INSERT.insertQuote()
-
-
-# UPDATE
-@app.route('/quoteUpdate', methods=['POST'])
-def updateQuotes():
-    return UPDATE.updateQuote()
-
-
-# DELETE
-@app.route('/quoteDelete', methods=['POST'])
-def deleteQuotes():
-    return DELETE.deleteQuote()
-
-
-# ===========================================================================Sessions methods===================================================================================
-# GET
-@app.route('/sessions', methods=['GET'])
-def getSessions():
-    return GET.getSessions()
-
-
-# INSERT
-@app.route('/sessions', methods=['POST'])
-def insertSessions():
-    return INSERT.insertSession()
-
-
-# UPDATE
-@app.route('/sessionUpdate', methods=['POST'])
-def updateSessions():
-    return UPDATE.updateSession()
-
-
-# DELETE
-@app.route('/sessionDelete', methods=['POST'])
-def deleteSessions():
-    return DELETE.deleteSession()
-
-
-# ==============================================================================Start the application=====================================================================
-
+app.register_blueprint(getAccount)
+app.register_blueprint(insertAccounts)
+app.register_blueprint(updateAccounts)
+app.register_blueprint(deleteAccounts)
+app.register_blueprint(getEvent)
+app.register_blueprint(insertEvents)
+app.register_blueprint(updateEvents)
+app.register_blueprint(deleteEvents)
+app.register_blueprint(getNote)
+app.register_blueprint(insertNotes)
+app.register_blueprint(updateNote)
+app.register_blueprint(deleteNote)
+app.register_blueprint(getQuote)
+app.register_blueprint(insertQuotes)
+app.register_blueprint(updateQuotes)
+app.register_blueprint(deleteQuotes)
+app.register_blueprint(getSession)
+app.register_blueprint(insertSessions)
+app.register_blueprint(updateSessions)
+app.register_blueprint(deleteSessions)
 
 if __name__ == "__main__":
     app.run()

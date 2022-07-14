@@ -1,13 +1,15 @@
-from flask import Flask, render_template, jsonify, request
+from flask import jsonify, request, Blueprint
 from Modules.Notes.Config import notesGetJsonSchemaLocation, notesReceivedJsonDataLocation, notesXmlFileLocation, \
     notesJsonDataConvertedFromXmlLocation
 from Modules.Util import validateJsonResponse, saveJsonResponse, convertNotesJsonToXml, convertFromXMLToJSON
-from appRestApi import app, db, Notes
+
+getNote = Blueprint('getNote', __name__)
 
 
 # GET
-@app.route('/notes', methods=['GET'])
+@getNote.route('/notes', methods=['GET'])
 def getNotes():
+    from appRestApi import Notes
     getUserID = request.args.get("id")
     output = []
 

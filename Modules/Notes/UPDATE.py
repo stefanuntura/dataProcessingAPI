@@ -1,12 +1,14 @@
 import xml.etree.ElementTree as ET
-from flask import request
+from flask import request, Blueprint
 from Modules.Notes.Config import notesUpdateJsonSchemaLocation, notesUpdateReceivedXmlInfoLocation
 from Modules.Util import validateJsonResponse
-from appRestApi import app, db, Notes
+
+updateNote = Blueprint('updateNotes', __name__)
 
 # UPDATE
-@app.route('/noteUpdate', methods=['POST'])
+@updateNote.route('/noteUpdate', methods=['POST'])
 def updateNotes():
+    from appRestApi import db, Notes
     if (request.is_json):
         noteData = request.get_json()
 
@@ -24,6 +26,7 @@ def updateNotes():
 
 # UPDATE WITH XML
 def updateNotesXml():
+    from appRestApi import db, Notes
     noteData = request.get_data()
 
     # Transforms data received into a non-flat xml file

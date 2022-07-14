@@ -2,17 +2,52 @@ from matplotlib import pyplot as plt
 import matplotlib.style as style
 import numpy as np
 import appRestApi as mainApi
+import requests
+import json
 # Line plot/ graphs
-# plt.style.use('fivethirtyeight')
+plt.style.use('fivethirtyeight')
 # plt.xkcd()
 
 
-x = [25, 26, 15, 27, 35]
-y = [0, 10, 20, 50]
+uri = "http://127.0.0.1:5000/accounts"
 
-plt.title("Data Visualization")
-plt.xlabel("x axis")
-plt.ylabel("y axis")
+user = []
+quotes = []
+notes = []
+events = []
+sessions = []
+
+response = requests.get(uri).json() # list type
+
+for i in response:
+    user.append(i['id'])
+
+def get_answers(user_id, table, object_array):
+    uri = "http://127.0.0.1:5000/" + table + "?id=" + str(user_id)
+    response = requests.get(uri).json()
+    if len(response) != 0:
+        number = 0
+        for y in response:
+            number += 1
+        object_array.append(number)
+    else:
+        object_array.append(0)
+
+
+for x in user:
+    get_answers(x, "quotes", quotes)
+    get_answers(x, "notes", notes)
+    get_answers(x, "events", events)
+    get_answers(x, "sessions", sessions)
+
+for z in quotes:
+    print(z)
+
+
+
+# plt.title("Data Visualization")
+# plt.xlabel("x axis")
+# plt.ylabel("y axis")
 # plt.xticks((1,2,3,4,5), ('h','e','l','l','o'))
 
 
@@ -51,14 +86,14 @@ plt.ylabel("y axis")
 # plt.stackplot(days, eating, sleeping, working, playing, colors=['m','c','r','k'])
 
 # Pie chart
-slices = [7,2,2,13]
-activities = ['Sleeping', 'eating', 'working', 'playing']
-cols = ['c','m','r','b']
-plt.pie(slices,
-        labels=activities,
-        wedgeprops={'edgecolor': 'black'},
-        colors=cols,
-        startangle=90,
-        shadow = True,
-        explode=(0,0,1,0,0)
-        autopct='%1.1f%%')
+# slices = [7,2,2,13]
+# activities = ['Sleeping', 'eating', 'working', 'playing']
+# cols = ['c','m','r','b']
+# plt.pie(slices,
+#         labels=activities,
+#         wedgeprops={'edgecolor': 'black'},
+#         colors=cols,
+#         startangle=90,
+#         shadow = True,
+#         explode=(0,0,1,0,0)
+#         autopct='%1.1f%%')

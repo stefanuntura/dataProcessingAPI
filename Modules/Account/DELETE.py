@@ -1,7 +1,5 @@
-import xml.etree.ElementTree as ET
 from flask import request, Blueprint
 from Modules.Account.Config import accountDeleteSchemaLocation
-from Modules.Util import validateJsonResponse
 from Modules.Util import *
 
 deleteAccounts = Blueprint('deleteAccounts', __name__)

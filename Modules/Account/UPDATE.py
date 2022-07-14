@@ -1,12 +1,15 @@
 import xml.etree.ElementTree as ET
-from flask import Flask, render_template, jsonify, request
+from flask import request, Blueprint
 from Modules.Account.Config import accountUpdateSchemaLocation
 from Modules.Util import validateJsonResponse
-from appRestApi import Account, db
+
+updateAccounts = Blueprint('updateAccounts', __name__)
 
 
 # UPDATE
+@updateAccounts.route('/accountUpdate', methods=['POST'])
 def updateAccount():
+    from appRestApi import Account, db
     if (request.is_json):
         accountData = request.get_json()
 
@@ -24,6 +27,7 @@ def updateAccount():
 
 # UPDATE WITH XML
 def updateAccountXml():
+    from appRestApi import Account, db
     accountData = request.get_data()
 
     # Transforms data received into a non-flat xml file
@@ -40,4 +44,3 @@ def updateAccountXml():
     db.session.close()
 
     return "Successfuly updated account!"
-

@@ -1,14 +1,15 @@
 import xml.etree.ElementTree as ET
-from flask import request
-
+from flask import request, Blueprint
 from Modules.Sessions.Config import sessionDeleteJsonSchemaLocation
 from Modules.Util import validateJsonResponse
-from appRestApi import app, db, Sessions
+
+deleteSessions = Blueprint('deleteSessions', __name__)
 
 
 # DELETE
-@app.route('/sessionDelete', methods=['POST'])
+@deleteSessions.route('/sessionDelete', methods=['POST'])
 def deleteSession():
+    from appRestApi import db, Sessions
     if (request.is_json):
         sessionData = request.get_json()
 
@@ -29,6 +30,7 @@ def deleteSession():
 
 # DELETE BY XML POST
 def deleteSessionXml():
+    from appRestApi import db, Sessions
     sessionToDeleteID = ''
     sessionData = request.get_data()
 

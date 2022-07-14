@@ -1,13 +1,15 @@
 import xml.etree.ElementTree as ET
-from flask import request
+from flask import request, Blueprint
 from Modules.Notes.Config import notesInsertJsonSchemaLocation
 from Modules.Util import validateJsonResponse
-from appRestApi import app, db, Notes
+
+insertNotes = Blueprint('insertNotes', __name__)
 
 
 # INSERT
-@app.route('/notes', methods=['POST'])
+@insertNotes.route('/notes', methods=['POST'])
 def insertNote():
+    from appRestApi import db, Notes
     if (request.is_json):
         noteData = request.get_json()
 
@@ -29,6 +31,7 @@ def insertNote():
 
 # INSERT WITH XML
 def insertNoteXml():
+    from appRestApi import db, Notes
     noteData = request.get_data()
 
     # Transforms data received into a non-flat xml file

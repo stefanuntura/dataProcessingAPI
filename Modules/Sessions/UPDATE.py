@@ -1,14 +1,15 @@
 import xml.etree.ElementTree as ET
-from flask import request
-
+from flask import request, Blueprint
 from Modules.Sessions.Config import sessionUpdateSchemaLocation
 from Modules.Util import validateJsonResponse
-from appRestApi import app, db, Sessions
+
+updateSessions = Blueprint('updateSessions', __name__)
 
 
 #UPDATE WITH XML
-@app.route('/sessionUpdate', methods=['POST'])
+@updateSessions.route('/sessionUpdate', methods=['POST'])
 def updateSession():
+    from appRestApi import db, Sessions
     if (request.is_json):
         sessionData = request.get_json()
 
@@ -31,6 +32,7 @@ def updateSession():
 
 # UPDATE WITH XML
 def updateSessionXml():
+    from appRestApi import db, Sessions
     sessionData = request.get_data()
 
     # Transforms data received into a non-flat xml file

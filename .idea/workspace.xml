@@ -5,8 +5,28 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cbf174d-37b5-4238-b9f5-f579288b1ef1" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Account/DELETE.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Account/DELETE.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Account/GET.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Account/GET.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Account/INSERT.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Account/INSERT.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Account/UPDATE.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Account/UPDATE.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Events/DELETE.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Events/DELETE.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Events/GET.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Events/GET.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Events/INSERT.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Events/INSERT.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Events/UPDATE.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Events/UPDATE.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Notes/DELETE.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Notes/DELETE.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Notes/GET.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Notes/GET.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Notes/INSERT.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Notes/INSERT.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Notes/UPDATE.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Notes/UPDATE.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Quotes/DELETE.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Quotes/DELETE.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Quotes/GET.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Quotes/GET.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Quotes/INSERT.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Quotes/INSERT.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Quotes/UPDATE.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Quotes/UPDATE.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Sessions/DELETE.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Sessions/DELETE.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Sessions/GET.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Sessions/GET.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Sessions/INSERT.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Sessions/INSERT.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Modules/Sessions/UPDATE.py" beforeDir="false" afterPath="$PROJECT_DIR$/Modules/Sessions/UPDATE.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/appRestApi.py" beforeDir="false" afterPath="$PROJECT_DIR$/appRestApi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/accountsReceived.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/accountsReceived.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,14 +45,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "C:/Users/victo/Documents/GitHub/dataProcessingAPI/appRestApi.py",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/victo/Documents/GitHub/dataProcessingAPI/appRestApi.py&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="appRestApi" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="dataProcessingAPI" />

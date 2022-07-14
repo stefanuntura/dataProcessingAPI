@@ -1,12 +1,16 @@
 import xml.etree.ElementTree as ET
-from flask import request
+from flask import request, Blueprint
 from Modules.Events.Config import eventUpdateSchemaLocation
 from Modules.Util import validateJsonResponse
-from appRestApi import app, db, Events
+
+
+updateEvents = Blueprint('updateEvents', __name__)
+
 
 # UPDATE
-@app.route('/eventUpdate', methods=['POST'])
+@updateEvents.route('/eventUpdate', methods=['POST'])
 def updateEvent():
+    from appRestApi import db, Events
     if (request.is_json):
         eventData = request.get_json()
 
@@ -29,6 +33,7 @@ def updateEvent():
 
 # UPDATE WITH XML
 def updateEventXml():
+    from appRestApi import db, Events
     eventData = request.get_data()
 
     # Transforms data received into a non-flat xml file

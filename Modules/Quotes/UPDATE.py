@@ -1,13 +1,15 @@
 import xml.etree.ElementTree as ET
-from flask import Flask, render_template, jsonify, request
+from flask import request, Blueprint
 from Modules.Quotes.Config import quoteUpdateJsonSchemaLocation
 from Modules.Util import validateJsonResponse
-from appRestApi import app, db, Quotes
+
+updateQuotes = Blueprint('updateQuotes', __name__)
 
 
 # UPDATE
-@app.route('/quoteUpdate', methods=['POST'])
+@updateQuotes.route('/quoteUpdate', methods=['POST'])
 def updateQuote():
+    from appRestApi import db, Quotes
     if (request.is_json):
         quoteData = request.get_json()
 
@@ -25,6 +27,7 @@ def updateQuote():
 
 # UPDATE WITH XML
 def updateQuoteXml():
+    from appRestApi import db, Quotes
     quoteData = request.get_data()
 
     # Transforms data received into a non-flat xml file

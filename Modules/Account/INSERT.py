@@ -1,16 +1,18 @@
 import xml.etree.ElementTree as ET
-from flask import Flask, render_template, jsonify, request
+from flask import Blueprint, request, jsonify
 from Modules.Account.Config import accountInsertSchemaLocation
 from Modules.Util import validateJsonResponse
-from appRestApi import *
 
 
+insertAccounts = Blueprint('insertAccounts', __name__)
 # INSERT
 # Checks if account already exists
 # If entry already exists, returns string "Account already exists!"
 # If entry does not exist, inserts sent entry in database
 
+@insertAccounts.route('/accounts', methods=['POST'])
 def insertAccount():
+    from appRestApi import Account, db
     if (request.is_json):
         accountData = request.get_json()
 
@@ -51,6 +53,7 @@ def insertAccount():
 
 
 def insertAccountJson(accountData):
+    from appRestApi import Account, db
     # Validates sent JSON before insert
     if validateJsonResponse(accountInsertSchemaLocation, accountData) == False:
         account = Account(email=accountData['email'])
@@ -63,6 +66,7 @@ def insertAccountJson(accountData):
 
 
 def insertAccountXml(accountData):
+    from appRestApi import Account, db
     # Transforms data received into a non-flat xml file
     info = ET.fromstring(accountData)
     tree = ET.ElementTree(info)

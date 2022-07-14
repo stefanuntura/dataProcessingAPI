@@ -1,13 +1,14 @@
 import xml.etree.ElementTree as ET
-from flask import request
+from flask import request, Blueprint
 from Modules.Notes.Config import notesDeleteJsonSchemaLocation
 from Modules.Util import validateJsonResponse
-from appRestApi import app, db, Notes
 
+deleteNote = Blueprint('deleteNote', __name__)
 
 # DELETE
-@app.route('/noteDelete', methods=['POST'])
+@deleteNote.route('/noteDelete', methods=['POST'])
 def deleteNotes():
+    from appRestApi import db, Notes
     if (request.is_json):
         noteData = request.get_json()
 
@@ -28,6 +29,7 @@ def deleteNotes():
 
 # DELETE BY XML POST
 def deleteNotesXml():
+    from appRestApi import db, Notes
     noteToDeleteID = ''
     noteData = request.get_data()
 

@@ -1,13 +1,16 @@
 import xml.etree.ElementTree as ET
-from flask import Flask, render_template, jsonify, request
+from flask import request, Blueprint
 from Modules.Account.Config import accountDeleteSchemaLocation
 from Modules.Util import validateJsonResponse
-from appRestApi import Account, db
 from Modules.Util import *
+
+deleteAccounts = Blueprint('deleteAccounts', __name__)
 
 
 # DELETE
+@deleteAccounts.route('/accountDelete', methods=['POST'])
 def deleteAccount():
+    from appRestApi import Account, db
     if (request.is_json):
         accountData = request.get_json()
 
@@ -28,6 +31,7 @@ def deleteAccount():
 
 # DELETE BY XML POST
 def deleteAccountXml():
+    from appRestApi import Account, db
     accountID = ''
     accountData = request.get_data()
 

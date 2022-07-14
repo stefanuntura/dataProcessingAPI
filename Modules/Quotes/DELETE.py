@@ -1,13 +1,15 @@
 import xml.etree.ElementTree as ET
-from flask import Flask, render_template, jsonify, request
+from flask import request, Blueprint
 from Modules.Quotes.Config import quoteDeleteJsonSchemaLocation
 from Modules.Util import validateJsonResponse
-from appRestApi import app, db, Quotes
+
+deleteQuotes = Blueprint('deleteQuotes', __name__)
 
 
 # DELETE
-@app.route('/quoteDelete', methods=['POST'])
+@deleteQuotes.route('/quoteDelete', methods=['POST'])
 def deleteQuote():
+    from appRestApi import db, Quotes
     if (request.is_json):
         quoteData = request.get_json()
 
@@ -28,6 +30,7 @@ def deleteQuote():
 
 # DELETE BY XML POST
 def deleteQuoteXml():
+    from appRestApi import db, Quotes
     updatedQuoteID = ''
     quoteData = request.get_data()
 

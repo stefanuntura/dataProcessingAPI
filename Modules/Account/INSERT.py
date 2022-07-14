@@ -5,6 +5,8 @@ from Modules.Util import validateJsonResponse
 
 
 insertAccounts = Blueprint('insertAccounts', __name__)
+
+
 # INSERT
 # Checks if account already exists
 # If entry already exists, returns string "Account already exists!"

@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from flask import request, Blueprint
-from Modules.Sessions.Config import sessionDeleteJsonSchemaLocation
-from Modules.Util import validateJsonResponse
+from Modules.Sessions.Config import sessionDeleteJsonSchemaLocation, sessionDeleteXmlSchemaLocation, sessionDeleteXmlDataLocation
+from Modules.Util import validateJsonResponse, validateXmlResponse
 
 deleteSessions = Blueprint('deleteSessions', __name__)
 
@@ -37,15 +37,19 @@ def deleteSessionXml():
     # Transforms data received into a non-flat xml file
     info = ET.fromstring(sessionData)
     tree = ET.ElementTree(info)
+    tree.write(sessionDeleteXmlDataLocation)
 
-    # Iterates over xml and finds necessarry data belonging to tags
-    for item in tree.iter('session'):
-        sessionToDeleteID = item.find('id').text
+    if validateXmlResponse(sessionDeleteXmlSchemaLocation, sessionDeleteXmlDataLocation) == True:
+        print("Successfuly validated xml!")
 
-    # Deletes note based on id specified in xml sent
-    sessionToDelete = Sessions.query.get(sessionToDeleteID)
-    db.session.delete(sessionToDelete)
-    db.session.commit()
-    db.session.close()
+        # Iterates over xml and finds necessarry data belonging to tags
+        for item in tree.iter('session'):
+            sessionToDeleteID = item.find('id').text
+
+        # Deletes note based on id specified in xml sent
+        sessionToDelete = Sessions.query.get(sessionToDeleteID)
+        db.session.delete(sessionToDelete)
+        db.session.commit()
+        db.session.close()
 
     return "Successfuly deleted session!"

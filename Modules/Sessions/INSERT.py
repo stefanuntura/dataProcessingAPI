@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from flask import request, Blueprint
-from Modules.Sessions.Config import sessionInsertSchemaLocation
-from Modules.Util import validateJsonResponse
+from Modules.Sessions.Config import sessionInsertSchemaLocation, sessionInsertXmlSchemaLocation, sessionInsertXmlDataLocation
+from Modules.Util import validateJsonResponse, validateXmlResponse
 
 insertSessions = Blueprint('insertSessions', __name__)
 
@@ -37,21 +37,22 @@ def insertSessionXml():
     # Transforms data received into a non-flat xml file
     info = ET.fromstring(sessionData)
     tree = ET.ElementTree(info)
+    tree.write(sessionInsertXmlDataLocation)
 
-    # if validateXmlResponse('xmlSchemas/noteInsertSchema.txt', info) == True:
-    #     print("Successfuly validated xml!")
+    if validateXmlResponse(sessionInsertXmlSchemaLocation, sessionInsertXmlDataLocation) == True:
+        print("Successfuly validated xml!")
 
-    # Iterates over xml and finds necessarry data belonging to tags
-    for item in tree.iter('session'):
-        newSessionDate = item.find('date').text
-        newSessionTime = item.find('time').text
-        newSessionDuration = item.find('duration').text
-        newSessionAccountID = item.find('accountID').text
+        # Iterates over xml and finds necessarry data belonging to tags
+        for item in tree.iter('session'):
+            newSessionDate = item.find('date').text
+            newSessionTime = item.find('time').text
+            newSessionDuration = item.find('duration').text
+            newSessionAccountID = item.find('accountID').text
 
-    session = Sessions(date=newSessionDate, time=newSessionTime, duration=newSessionDuration,
-                       account_id=newSessionAccountID)
-    db.session.add(session)
-    db.session.commit()
-    db.session.close()
+        session = Sessions(date=newSessionDate, time=newSessionTime, duration=newSessionDuration,
+                        account_id=newSessionAccountID)
+        db.session.add(session)
+        db.session.commit()
+        db.session.close()
 
     return "Successfully added session!"

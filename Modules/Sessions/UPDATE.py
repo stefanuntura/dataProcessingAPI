@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from flask import request, Blueprint
-from Modules.Sessions.Config import sessionUpdateSchemaLocation
-from Modules.Util import validateJsonResponse
+from Modules.Sessions.Config import sessionUpdateSchemaLocation, sessionUpdateXmlSchemaLocation, sessionUpdateXmlDataLocation
+from Modules.Util import validateJsonResponse, validateXmlResponse
 
 updateSessions = Blueprint('updateSessions', __name__)
 
@@ -38,19 +38,23 @@ def updateSessionXml():
     # Transforms data received into a non-flat xml file
     info = ET.fromstring(sessionData)
     tree = ET.ElementTree(info)
+    tree.write(sessionUpdateXmlDataLocation)
 
-    # Iterates over xml and finds necessarry data belonging to tags
-    for item in tree.iter('session'):
-        updatedSessionID = item.find('id').text
-        updatedSessionDate = item.find('date').text
-        updatedSessionTime = item.find('time').text
-        updatedSessionDuration = item.find('duration').text
+    if validateXmlResponse(sessionUpdateXmlSchemaLocation, sessionUpdateXmlDataLocation) == True:
+        print("Successfuly validated xml!")
 
-    Sessions.query.filter_by(id=updatedSessionID).update(dict(date=updatedSessionDate))
-    Sessions.query.filter_by(id=updatedSessionID).update(dict(time=updatedSessionTime))
-    Sessions.query.filter_by(id=updatedSessionID).update(dict(duration=updatedSessionDuration))
-    db.session.commit()
-    db.session.close()
+        # Iterates over xml and finds necessarry data belonging to tags
+        for item in tree.iter('session'):
+            updatedSessionID = item.find('id').text
+            updatedSessionDate = item.find('date').text
+            updatedSessionTime = item.find('time').text
+            updatedSessionDuration = item.find('duration').text
+
+        Sessions.query.filter_by(id=updatedSessionID).update(dict(date=updatedSessionDate))
+        Sessions.query.filter_by(id=updatedSessionID).update(dict(time=updatedSessionTime))
+        Sessions.query.filter_by(id=updatedSessionID).update(dict(duration=updatedSessionDuration))
+        db.session.commit()
+        db.session.close()
 
     return "Successfuly updated session!"
 

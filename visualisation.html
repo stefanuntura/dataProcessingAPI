@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css/">
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <py-env>
+        - matplotlib
+        - requests
+        - json
+    </py-env>
+</head>
+<body>
+    <h1>Group STIX Data Processing Mini Project</h1>dsf
+    <div id="plot"></div>
+    <py-script output="plot">
+        import matplotlib.pyplot as plt
+        import json
+        import requests
+
+uri = "http://127.0.0.1:5000/accounts"
+
+user = []
+user_array = []
+quotes = []
+notes = []
+events = []
+sessions = []
+
+response = requests.get(uri).json() # list type
+
+for i in response:
+    user.append(i['id'])
+    user_array.append("User" + str(i['id']))
+
+def get_answers(user_id, table, object_array):
+    uri = "http://127.0.0.1:5000/" + table + "?id=" + str(user_id)
+    response = requests.get(uri).json()
+    if len(response) != 0:
+        number = 0
+        for y in response:
+            number += 1
+        object_array.append(number)
+    else:
+        object_array.append(0)
+
+
+for x in user:
+    get_answers(x, "quotes", quotes)
+    </py-script>
+</body>
+</html>

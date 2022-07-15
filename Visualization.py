@@ -5,13 +5,14 @@ import appRestApi as mainApi
 import requests
 import json
 # Line plot/ graphs
-plt.style.use('fivethirtyeight')
-# plt.xkcd()
+# plt.style.use('fivethirtyeight')
+plt.xkcd()
 
 
 uri = "http://127.0.0.1:5000/accounts"
 
 user = []
+user_array = []
 quotes = []
 notes = []
 events = []
@@ -21,6 +22,7 @@ response = requests.get(uri).json() # list type
 
 for i in response:
     user.append(i['id'])
+    user_array.append("User" + str(i['id']))
 
 def get_answers(user_id, table, object_array):
     uri = "http://127.0.0.1:5000/" + table + "?id=" + str(user_id)
@@ -40,14 +42,25 @@ for x in user:
     get_answers(x, "events", events)
     get_answers(x, "sessions", sessions)
 
-for z in quotes:
-    print(z)
+width = 0.2
 
+x_indexes = np.arange(len(user_array))
 
+plt.bar(x_indexes - width, quotes, width=width, color="#444444", label="Quotes")
+plt.bar(x_indexes, notes, width=width, color="#008fd5", label="Notes")
+plt.bar(x_indexes + width, events, width=width, color="#e5ae38", label="Events")
+plt.bar(x_indexes + width + width, sessions, width=width, color="red", label="Sessions")
 
-# plt.title("Data Visualization")
-# plt.xlabel("x axis")
-# plt.ylabel("y axis")
+plt.legend() 
+plt.xticks(ticks=x_indexes, labels=user_array)
+plt.title("Data Visualization")
+plt.xlabel("User id")
+plt.ylabel("User data")
+
+plt.tight_layout()
+
+plt.show()
+
 # plt.xticks((1,2,3,4,5), ('h','e','l','l','o'))
 
 

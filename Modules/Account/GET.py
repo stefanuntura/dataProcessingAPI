@@ -26,12 +26,6 @@ def getAccounts():
         if validateJsonResponse(accountsGetJsonSchemaLocation, output) == False:
             # Save received json data to "received" file
             saveJsonResponse(accountsReceivedJsonDataLocation, output)
-
-            # #Convert received json data to XML
-            # convertNotesJsonToXml(notesReceivedJsonDataLocation, notesXmlFileLocation, len(output))
-
-            # #Convert XML data to a more structured JSON to "converted" file
-            # convertFromXMLToJSON(notesXmlFileLocation, notesJsonDataConvertedFromXmlLocation)
         else:
             return "There were errors while validating the json data"
 

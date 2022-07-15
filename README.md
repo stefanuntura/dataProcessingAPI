@@ -5,7 +5,7 @@
 **Installation Guide**
 
 - 1 Install [Python](https://www.python.org/downloads/release/python-3104/) (3.10.4, but latest should also work)
-- 2 Open up a terminal or console in the project folder
+- 2 Open up a terminal or console in the project folder (please make sure you are on the main branch beforehand)
 - 3 Install pip
 
   `pip install`
@@ -30,8 +30,12 @@
   `pip install lxml`
   `pip install flask`
   `pip install flask_sqlalchemy`
+  `pip install matplotlib`
+  `pip install seaborn`
+  `pip install numpy`
+  
 
-- 5 Run the application using the command
+- 5 Run the application using the command (please make sure you are on the main branch beforehand)
 
   `py appRestApi.py`
 
@@ -39,3 +43,5 @@
   `127.0.0.1:5000`
 
 - 6 Congratulations! You are now running the application. Open the previous address in your browser of choice and send requests via the endpoints mentioned in index.html (the page loaded when opening the address above)
+
+- 7 To view the graphs and data visualisation aspect of the assignment please refer to the 'DataVisualisation.md' in the Visualisations folder.

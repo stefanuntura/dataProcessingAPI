@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from flask import request, Blueprint
-from Modules.Quotes.Config import quoteDeleteJsonSchemaLocation
-from Modules.Util import validateJsonResponse
+from Modules.Quotes.Config import quoteDeleteJsonSchemaLocation, quoteDeleteXmlSchemaLocation, quoteDeleteXmlDataLocation
+from Modules.Util import validateJsonResponse, validateXmlResponse
 
 deleteQuotes = Blueprint('deleteQuotes', __name__)
 
@@ -37,15 +37,19 @@ def deleteQuoteXml():
     # Transforms data received into a non-flat xml file
     info = ET.fromstring(quoteData)
     tree = ET.ElementTree(info)
+    tree.write(quoteDeleteXmlDataLocation)
 
-    # Iterates over xml and finds necessarry data belonging to tags
-    for item in tree.iter('quote'):
-        updatedQuoteID = item.find('id').text
+    if validateXmlResponse(quoteDeleteXmlSchemaLocation, quoteDeleteXmlDataLocation) == True:
+        print("Successfuly validated xml!")
 
-    # Deletes note based on id specified in xml sent
-    quoteToDelete = Quotes.query.get(updatedQuoteID)
-    db.session.delete(quoteToDelete)
-    db.session.commit()
-    db.session.close()
+        # Iterates over xml and finds necessarry data belonging to tags
+        for item in tree.iter('quote'):
+            updatedQuoteID = item.find('id').text
+
+        # Deletes note based on id specified in xml sent
+        quoteToDelete = Quotes.query.get(updatedQuoteID)
+        db.session.delete(quoteToDelete)
+        db.session.commit()
+        db.session.close()
 
     return "Successfuly deleted quote!"

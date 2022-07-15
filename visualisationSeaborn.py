@@ -45,7 +45,6 @@ def plotTotalSessions():
     # rs = np.random.RandomState(9) 
     data = [xValues,yValues]
 
-    #zeigt nur values für 23 columns - welche wird ausgelassen? warum letzte so hoch? gridsize = (12,3),
     graph = sns.jointplot( x=yValues, y=xValues, kind="hist", color="#4CB391", binwidth = 1, space = 0.2, height = 6, marginal_kws=dict(bins=(24), fill=True), marginal_ticks = True)
 
     # axis limits

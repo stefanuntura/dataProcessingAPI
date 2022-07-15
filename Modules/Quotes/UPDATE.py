@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from flask import request, Blueprint
-from Modules.Quotes.Config import quoteUpdateJsonSchemaLocation
-from Modules.Util import validateJsonResponse
+from Modules.Quotes.Config import quoteUpdateJsonSchemaLocation, quoteUpdateXmlSchemaLocation, quoteUpdateXmlDataLocation
+from Modules.Util import validateJsonResponse, validateXmlResponse
 
 updateQuotes = Blueprint('updateQuotes', __name__)
 
@@ -33,14 +33,18 @@ def updateQuoteXml():
     # Transforms data received into a non-flat xml file
     info = ET.fromstring(quoteData)
     tree = ET.ElementTree(info)
+    tree.write(quoteUpdateXmlDataLocation)
 
-    # Iterates over xml and finds necessarry data belonging to tags
-    for item in tree.iter('quote'):
-        updatedQuoteID = item.find('id').text
-        updatedQuoteContent = item.find('content').text
+    if validateXmlResponse(quoteUpdateXmlSchemaLocation, quoteUpdateXmlDataLocation) == True:
+        print("Successfuly validated xml!")
 
-    Quotes.query.filter_by(id=updatedQuoteID).update(dict(content=updatedQuoteContent))
-    db.session.commit()
-    db.session.close()
+        # Iterates over xml and finds necessarry data belonging to tags
+        for item in tree.iter('quote'):
+            updatedQuoteID = item.find('id').text
+            updatedQuoteContent = item.find('content').text
+
+        Quotes.query.filter_by(id=updatedQuoteID).update(dict(content=updatedQuoteContent))
+        db.session.commit()
+        db.session.close()
 
     return "Successfuly updated quote!"

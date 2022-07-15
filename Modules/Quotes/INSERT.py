@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from flask import request, Blueprint
-from Modules.Quotes.Config import quoteInsertSchemaLocation
-from Modules.Util import validateJsonResponse
+from Modules.Quotes.Config import quoteInsertSchemaLocation, quoteInsertXmlSchemaLocation, quoteInsertXmlDataLocation
+from Modules.Util import validateJsonResponse, validateXmlResponse
 
 insertQuotes = Blueprint('insertQuotes', __name__)
 
@@ -36,18 +36,19 @@ def insertQuoteXml():
     # Transforms data received into a non-flat xml file
     info = ET.fromstring(quoteData)
     tree = ET.ElementTree(info)
+    tree.write(quoteInsertXmlDataLocation)
 
-    # if validateXmlResponse('xmlSchemas/noteInsertSchema.txt', info) == True:
-    #     print("Successfuly validated xml!")
+    if validateXmlResponse(quoteInsertXmlSchemaLocation, quoteInsertXmlDataLocation) == True:
+        print("Successfuly validated xml!")
 
-    # Iterates over xml and finds necessarry data belonging to tags
-    for item in tree.iter('quote'):
-        newQuoteContent = item.find('content').text
-        newQuoteAccountID = item.find('accountID').text
+        # Iterates over xml and finds necessarry data belonging to tags
+        for item in tree.iter('quote'):
+            newQuoteContent = item.find('content').text
+            newQuoteAccountID = item.find('accountID').text
 
-    quote = Quotes(content=newQuoteContent, account_id=newQuoteAccountID)
-    db.session.add(quote)
-    db.session.commit()
-    db.session.close()
+        quote = Quotes(content=newQuoteContent, account_id=newQuoteAccountID)
+        db.session.add(quote)
+        db.session.commit()
+        db.session.close()
 
     return "Successfully inserted quote!"

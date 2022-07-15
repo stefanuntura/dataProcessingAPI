@@ -11,7 +11,7 @@ accountsInsertXmlSchemaLocation = 'xmlSchemas/Account/accountInsertSchema.txt'
 accountsUpdateXmlSchemaLocation = 'xmlSchemas/Account/accountUpdateSchema.txt'
 accountsDeleteXmlSchemaLocation = 'xmlSchemas/Account/accountDeleteSchema.txt'
 
-#Notes received from GET request
+#Accounts received from GET request
 accountsReceivedJsonDataLocation = 'data/accountsReceived.json'
 accountReceivedJsonDataLocation = 'data/accountReceived.json'
 

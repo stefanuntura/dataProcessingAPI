@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from flask import request, Blueprint
-from Modules.Events.Config import eventInsertSchemaLocation
-from Modules.Util import validateJsonResponse
+from Modules.Events.Config import eventInsertSchemaLocation, eventInsertXmlSchemaLocation, eventInsertXmlDataLocation
+from Modules.Util import validateJsonResponse, validateXmlResponse
 
 insertEvents = Blueprint('insertEvents', __name__)
 
@@ -36,20 +36,21 @@ def insertEventXml():
     # Transforms data received into a non-flat xml file
     info = ET.fromstring(eventData)
     tree = ET.ElementTree(info)
+    tree.write(eventInsertXmlDataLocation)
 
-    # if validateXmlResponse('xmlSchemas/noteInsertSchema.txt', info) == True:
-    #     print("Successfuly validated xml!")
+    if validateXmlResponse(eventInsertXmlSchemaLocation, eventInsertXmlDataLocation) == True:
+        print("Successfuly validated xml!")
 
-    # Iterates over xml and finds necessarry data belonging to tags
-    for item in tree.iter('event'):
-        newEventDate = item.find('date').text
-        newEventTime = item.find('time').text
-        newEventTitle = item.find('title').text
-        newEventAccountID = item.find('accountID').text
+        # Iterates over xml and finds necessarry data belonging to tags
+        for item in tree.iter('event'):
+            newEventDate = item.find('date').text
+            newEventTime = item.find('time').text
+            newEventTitle = item.find('title').text
+            newEventAccountID = item.find('accountID').text
 
-    event = Events(date=newEventDate, time=newEventTime, title=newEventTitle, account_id=newEventAccountID)
-    db.session.add(event)
-    db.session.commit()
-    db.session.close()
+        event = Events(date=newEventDate, time=newEventTime, title=newEventTitle, account_id=newEventAccountID)
+        db.session.add(event)
+        db.session.commit()
+        db.session.close()
 
     return "Successfully added event!"

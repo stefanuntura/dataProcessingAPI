@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from flask import request, Blueprint
-from Modules.Events.Config import eventDeleteJsonSchemaLocation
-from Modules.Util import validateJsonResponse
+from Modules.Events.Config import eventDeleteJsonSchemaLocation, eventDeleteXmlSchemaLocation, eventDeleteXmlDataLocation
+from Modules.Util import validateJsonResponse, validateXmlResponse
 
 deleteEvents = Blueprint('deleteEvents', __name__)
 
@@ -37,15 +37,19 @@ def deleteEventXml():
     # Transforms data received into a non-flat xml file
     info = ET.fromstring(eventData)
     tree = ET.ElementTree(info)
+    tree.write(eventDeleteXmlDataLocation)
 
-    # Iterates over xml and finds necessarry data belonging to tags
-    for item in tree.iter('event'):
-        eventToDeleteID = item.find('id').text
+    if validateXmlResponse(eventDeleteXmlSchemaLocation, eventDeleteXmlDataLocation) == True:
+        print("Successfuly validated xml!")
 
-    # Deletes note based on id specified in xml sent
-    eventToDelete = Events.query.get(eventToDeleteID)
-    db.session.delete(eventToDelete)
-    db.session.commit()
-    db.session.close()
+        # Iterates over xml and finds necessarry data belonging to tags
+        for item in tree.iter('event'):
+            eventToDeleteID = item.find('id').text
+
+        # Deletes note based on id specified in xml sent
+        eventToDelete = Events.query.get(eventToDeleteID)
+        db.session.delete(eventToDelete)
+        db.session.commit()
+        db.session.close()
 
     return "Successfuly deleted note!"

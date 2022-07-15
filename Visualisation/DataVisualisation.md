@@ -89,5 +89,5 @@ The data that the user will get from this visualization is the collection of use
 
 #### Graph type
 
-The graphs that will be displayed by using Matplotlib are bar chart and pie chart.
+The graphs that will be displayed by using Matplotlib is bar chart, it is also worth noting that displaying the entire data from all of the tables is not possible since the nature of API can only handle a limited number of get requests. 
 

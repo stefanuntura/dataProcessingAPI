@@ -5,7 +5,7 @@
         <xs:element name="date" type="xs:string" />
         <xs:element name="time" type="xs:string" />
         <xs:element name="title" type="xs:string" />
-        <xs:element name="account_id" type="xs:int" />
+        <xs:element name="accountID" type="xs:int" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from flask import request, Blueprint
-from Modules.Account.Config import accountUpdateSchemaLocation
-from Modules.Util import validateJsonResponse
+from Modules.Account.Config import accountUpdateSchemaLocation, accountsUpdateXmlSchemaLocation, accountUpdateXmlDataLocation
+from Modules.Util import validateJsonResponse, validateXmlResponse
 
 updateAccounts = Blueprint('updateAccounts', __name__)
 
@@ -33,14 +33,18 @@ def updateAccountXml():
     # Transforms data received into a non-flat xml file
     info = ET.fromstring(accountData)
     tree = ET.ElementTree(info)
+    tree.write(accountUpdateXmlDataLocation)
 
-    # Iterates over xml and finds necessarry data belonging to tags
-    for item in tree.iter('account'):
-        updatedAccountID = item.find('id').text
-        updatedAccountContent = item.find('email').text
+    if validateXmlResponse(accountsUpdateXmlSchemaLocation, accountUpdateXmlDataLocation) == True:
+        print("Successfuly validated xml!")
 
-    Account.query.filter_by(id=updatedAccountID).update(dict(email=updatedAccountContent))
-    db.session.commit()
-    db.session.close()
+        # Iterates over xml and finds necessarry data belonging to tags
+        for item in tree.iter('account'):
+            updatedAccountID = item.find('id').text
+            updatedAccountContent = item.find('email').text
+
+        Account.query.filter_by(id=updatedAccountID).update(dict(email=updatedAccountContent))
+        db.session.commit()
+        db.session.close()
 
     return "Successfuly updated account!"

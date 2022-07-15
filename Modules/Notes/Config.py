@@ -11,9 +11,10 @@ notesInsertXmlSchemaLocation = 'xmlSchemas/Note/noteInsertSchema.txt'
 notesUpdateXmlSchemaLocation = 'xmlSchemas/Note/noteUpdateSchema.txt'
 notesDeleteXmlSchemaLocation = 'xmlSchemas/Note/noteDeleteSchema.txt'
 
+#Notes received from GET request
 notesReceivedJsonDataLocation = 'data/notesReceived.json'
 
-#XML sent to the api
+#XML sent to the API
 notesXmlFileLocation = 'xml/Note/notes.xml'
 noteInsertXmlDataLocation = 'xml/Note/noteInsert.xml'
 notesUpdateXmlDataLocation = 'xml/Note/noteUpdate.xml'

@@ -1,5 +1,5 @@
 from flask import request, Blueprint
-from Modules.Account.Config import accountDeleteSchemaLocation
+from Modules.Account.Config import accountDeleteSchemaLocation, accountsDeleteXmlSchemaLocation, accountDeleteXmlDataLocation
 from Modules.Util import *
 
 deleteAccounts = Blueprint('deleteAccounts', __name__)
@@ -36,16 +36,20 @@ def deleteAccountXml():
     # Transforms data received into a non-flat xml file
     info = ET.fromstring(accountData)
     tree = ET.ElementTree(info)
+    tree.write(accountDeleteXmlDataLocation)
 
-    # Iterates over xml and finds necessarry data belonging to tags
-    for item in tree.iter('account'):
-        print(item)
-        accountID = item.find('id').text
+    if validateXmlResponse(accountsDeleteXmlSchemaLocation, accountDeleteXmlDataLocation) == True:
+        print("Successfuly validated xml!")
 
-    # Deletes note based on id specified in xml sent
-    accountToDelete = Account.query.get(accountID)
-    db.session.delete(accountToDelete)
-    db.session.commit()
-    db.session.close()
+        # Iterates over xml and finds necessarry data belonging to tags
+        for item in tree.iter('account'):
+            print(item)
+            accountID = item.find('id').text
+
+        # Deletes note based on id specified in xml sent
+        accountToDelete = Account.query.get(accountID)
+        db.session.delete(accountToDelete)
+        db.session.commit()
+        db.session.close()
 
     return "Successfuly deleted account!"

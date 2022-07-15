@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from flask import Blueprint, request, jsonify
-from Modules.Account.Config import accountInsertSchemaLocation
-from Modules.Util import validateJsonResponse
+from Modules.Account.Config import accountInsertSchemaLocation, accountsInsertXmlSchemaLocation, accountInsertXmlDataLocation
+from Modules.Util import validateJsonResponse, validateXmlResponse
 
 
 insertAccounts = Blueprint('insertAccounts', __name__)
@@ -35,21 +35,22 @@ def insertAccount():
         # Transforms data received into a non-flat xml file
         info = ET.fromstring(accountData)
         tree = ET.ElementTree(info)
+        tree.write(accountInsertXmlDataLocation)
 
-        # if validateXmlResponse('xmlSchemas/noteInsertSchema.txt', info) == True:
-        #     print("Successfuly validated xml!")
+        if validateXmlResponse(accountsInsertXmlSchemaLocation, accountInsertXmlDataLocation) == True:
+            print("Successfuly validated xml!")
 
-        # Iterates over xml and finds necessarry data belonging to tags
-        for item in tree.iter('account'):
-            accountEmail = item.find('email').text
+            # Iterates over xml and finds necessarry data belonging to tags
+            for item in tree.iter('account'):
+                accountEmail = item.find('email').text
 
-            exists = bool(db.session.query(Account).filter_by(email=accountEmail).first())
+                exists = bool(db.session.query(Account).filter_by(email=accountEmail).first())
 
-            if (exists):
-                return "Account already exists!"
-            else:
-                insertAccountXml(accountData)
-                return "Successfuly inserted account using xml!"
+                if (exists):
+                    return "Account already exists!"
+                else:
+                    insertAccountXml(accountData)
+                    return "Successfuly inserted account using xml!"
 
     return jsonify(accountData)
 
@@ -72,15 +73,16 @@ def insertAccountXml(accountData):
     # Transforms data received into a non-flat xml file
     info = ET.fromstring(accountData)
     tree = ET.ElementTree(info)
+    tree.write(accountInsertXmlDataLocation)
 
-    # if validateXmlResponse('xmlSchemas/noteInsertSchema.txt', info) == True:
-    #     print("Successfuly validated xml!")
+    if validateXmlResponse(accountsInsertXmlSchemaLocation, accountInsertXmlDataLocation) == True:
+        print("Successfuly validated xml!")
 
-    # Iterates over xml and finds necessarry data belonging to tags
-    for item in tree.iter('account'):
-        newAccountEmail = item.find('email').text
+        # Iterates over xml and finds necessarry data belonging to tags
+        for item in tree.iter('account'):
+            newAccountEmail = item.find('email').text
 
-    account = Account(email=newAccountEmail)
-    db.session.add(account)
-    db.session.commit()
-    db.session.close()
+        account = Account(email=newAccountEmail)
+        db.session.add(account)
+        db.session.commit()
+        db.session.close()

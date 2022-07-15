@@ -44,4 +44,4 @@
 
 - 6 Congratulations! You are now running the application. Open the previous address in your browser of choice and send requests via the endpoints mentioned in index.html (the page loaded when opening the address above)
 
-- 7 To view the graphs and data visualisation aspect of the assignment please refer to the 'DataVisualisation.md' in the Visualisations folder.
+- 7 **To view the graphs and data visualisation aspect of the assignment please refer to the 'DataVisualisation.md' in the Visualisations folder.**

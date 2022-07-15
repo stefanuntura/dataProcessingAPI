@@ -1,7 +1,6 @@
 from flask import jsonify, request, Blueprint
-from Modules.Notes.Config import notesGetJsonSchemaLocation, notesReceivedJsonDataLocation, notesXmlFileLocation, \
-    notesJsonDataConvertedFromXmlLocation
-from Modules.Util import validateJsonResponse, saveJsonResponse, convertNotesJsonToXml, convertFromXMLToJSON
+from Modules.Notes.Config import notesGetJsonSchemaLocation, notesReceivedJsonDataLocation, notesXmlFileLocation
+from Modules.Util import validateJsonResponse, saveJsonResponse, convertNotesJsonToXml
 
 getNote = Blueprint('getNote', __name__)
 
@@ -33,9 +32,6 @@ def getNotes():
 
             # Convert received json data to XML
             convertNotesJsonToXml(notesReceivedJsonDataLocation, notesXmlFileLocation, len(output))
-
-            # Convert XML data to a more structured JSON to "converted" file
-            convertFromXMLToJSON(notesXmlFileLocation, notesJsonDataConvertedFromXmlLocation)
         else:
             return "There were errors while validating the json data"
 

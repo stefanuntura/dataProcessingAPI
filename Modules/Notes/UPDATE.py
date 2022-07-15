@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from flask import request, Blueprint
-from Modules.Notes.Config import notesUpdateJsonSchemaLocation, notesUpdateReceivedXmlInfoLocation
-from Modules.Util import validateJsonResponse
+from Modules.Notes.Config import notesUpdateJsonSchemaLocation, notesUpdateXmlSchemaLocation, notesUpdateXmlDataLocation
+from Modules.Util import validateJsonResponse, validateXmlResponse
 
 updateNote = Blueprint('updateNotes', __name__)
 
@@ -32,15 +32,18 @@ def updateNotesXml():
     # Transforms data received into a non-flat xml file
     info = ET.fromstring(noteData)
     tree = ET.ElementTree(info)
-    tree.write(notesUpdateReceivedXmlInfoLocation)
+    tree.write(notesUpdateXmlDataLocation)
 
-    # Iterates over xml and finds necessarry data belonging to tags
-    for item in tree.iter('note'):
-        updatedNoteID = item.find('id').text
-        updatedNoteContent = item.find('content').text
+    if validateXmlResponse(notesUpdateXmlSchemaLocation, notesUpdateXmlDataLocation) == True:
+        print("Successfuly validated xml!")
 
-    Notes.query.filter_by(id=updatedNoteID).update(dict(content=updatedNoteContent))
-    db.session.commit()
-    db.session.close()
+        # Iterates over xml and finds necessarry data belonging to tags
+        for item in tree.iter('note'):
+            updatedNoteID = item.find('id').text
+            updatedNoteContent = item.find('content').text
+
+        Notes.query.filter_by(id=updatedNoteID).update(dict(content=updatedNoteContent))
+        db.session.commit()
+        db.session.close()
 
     return "Successfuly updated note!"

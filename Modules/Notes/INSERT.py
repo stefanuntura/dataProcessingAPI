@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 from flask import request, Blueprint
-from Modules.Notes.Config import notesInsertJsonSchemaLocation
+from Modules.Notes.Config import notesInsertJsonSchemaLocation, notesInsertXmlSchemaLocation, noteInsertXmlDataLocation
 from Modules.Util import validateJsonResponse, validateXmlResponse
 
 insertNotes = Blueprint('insertNotes', __name__)
@@ -37,21 +37,21 @@ def insertNoteXml():
     # Transforms data received into a non-flat xml file
     info = ET.fromstring(noteData)
     tree = ET.ElementTree(info)
-    tree.write('xml/noteInsertXml.xml')
+    tree.write(noteInsertXmlDataLocation)
 
-    if validateXmlResponse('xmlSchemas/noteInsertSchema.txt', 'xml/noteInsertXml.xml') == True:
+    if validateXmlResponse(notesInsertXmlSchemaLocation, noteInsertXmlDataLocation) == True:
         print("Successfuly validated xml!")
 
-    # Iterates over xml and finds necessarry data belonging to tags
-    for item in tree.iter('note'):
-        newNoteSubject = item.find('subject').text
-        newNoteTitle = item.find('title').text
-        newNoteContent = item.find('content').text
-        newNoteAccountID = item.find('accountID').text
+        # Iterates over xml and finds necessarry data belonging to tags
+        for item in tree.iter('note'):
+            newNoteSubject = item.find('subject').text
+            newNoteTitle = item.find('title').text
+            newNoteContent = item.find('content').text
+            newNoteAccountID = item.find('accountID').text
 
-    note = Notes(subject=newNoteSubject, title=newNoteTitle, content=newNoteContent, account_id=newNoteAccountID)
-    db.session.add(note)
-    db.session.commit()
-    db.session.close()
+        note = Notes(subject=newNoteSubject, title=newNoteTitle, content=newNoteContent, account_id=newNoteAccountID)
+        db.session.add(note)
+        db.session.commit()
+        db.session.close()
 
     return "Successfully added note!"

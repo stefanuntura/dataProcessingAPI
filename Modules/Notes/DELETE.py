@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from flask import request, Blueprint
-from Modules.Notes.Config import notesDeleteJsonSchemaLocation
-from Modules.Util import validateJsonResponse
+from Modules.Notes.Config import notesDeleteJsonSchemaLocation, notesDeleteXmlSchemaLocation, notesDeleteXmlDataLocation
+from Modules.Util import validateJsonResponse, validateXmlResponse
 
 deleteNote = Blueprint('deleteNote', __name__)
 
@@ -36,15 +36,19 @@ def deleteNotesXml():
     # Transforms data received into a non-flat xml file
     info = ET.fromstring(noteData)
     tree = ET.ElementTree(info)
+    tree.write(notesDeleteXmlDataLocation)
 
-    # Iterates over xml and finds necessarry data belonging to tags
-    for item in tree.iter('note'):
-        noteToDeleteID = item.find('id').text
+    if validateXmlResponse(notesDeleteXmlSchemaLocation, notesDeleteXmlDataLocation) == True:
+        print("Successfuly validated xml!")
 
-    # Deletes note based on id specified in xml sent
-    noteToDelete = Notes.query.get(noteToDeleteID)
-    db.session.delete(noteToDelete)
-    db.session.commit()
-    db.session.close()
+        # Iterates over xml and finds necessarry data belonging to tags
+        for item in tree.iter('note'):
+            noteToDeleteID = item.find('id').text
+
+        # Deletes note based on id specified in xml sent
+        noteToDelete = Notes.query.get(noteToDeleteID)
+        db.session.delete(noteToDelete)
+        db.session.commit()
+        db.session.close()
 
     return "Successfuly deleted note!"
